@@ -46,9 +46,6 @@ fn tester() -> Result<(), Box<dyn Error>> {
     for i in solcul.iter() {
         println!("{:18}: {:.2}", i.1.0, i.1.1);
     }
-    println!("{}", holdo.population(Some("jewish"), None));
-    println!("{}", holdo.population(Some("jewish"), Some(12)));
-    println!("{}", holdo.population(Some("jewish"), Some(58)));
 
     Ok(())
 }
