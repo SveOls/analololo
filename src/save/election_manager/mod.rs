@@ -5,6 +5,7 @@ use super::*;
 mod election;
 use election::Election;
 
+#[allow(dead_code)]
 pub struct ElectionManager {
     database: HashMap<usize, Option<Election>>,
 }

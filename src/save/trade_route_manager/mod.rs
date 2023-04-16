@@ -5,6 +5,7 @@ use super::*;
 mod trade_route;
 use trade_route::TradeRoute;
 
+#[allow(dead_code)]
 pub struct TradeRouteManager {
     database: HashMap<usize, Option<TradeRoute>>,
 }

@@ -5,6 +5,7 @@ use super::*;
 mod interest;
 use interest::Interest;
 
+#[allow(dead_code)]
 pub struct InterestManager {
     database: HashMap<usize, Option<Interest>>,
 }

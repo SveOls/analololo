@@ -1,8 +1,9 @@
-use jomini::text::ArrayReader;
+
 
 use super::*;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct Culture {
     name: String,
     seed: i64,

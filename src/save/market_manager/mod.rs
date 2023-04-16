@@ -5,6 +5,7 @@ use super::*;
 mod market;
 use market::Market;
 
+#[allow(dead_code)]
 pub struct MarketManager {
     database: HashMap<usize, Option<Market>>,
 }

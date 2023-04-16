@@ -5,6 +5,7 @@ use super::*;
 mod relation;
 use relation::Relation;
 
+#[allow(dead_code)]
 pub struct Relations {
     database: HashMap<usize, Option<Relation>>,
 }

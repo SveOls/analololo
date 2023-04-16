@@ -5,6 +5,7 @@ use super::*;
 mod state_region;
 use state_region::StateRegion;
 
+#[allow(dead_code)]
 pub struct StateRegionManager {
     database: HashMap<usize, Option<StateRegion>>,
 }

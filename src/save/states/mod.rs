@@ -5,6 +5,7 @@ use super::*;
 mod state;
 use state::State;
 
+#[allow(dead_code)]
 pub struct States {
     database: HashMap<usize, Option<State>>,
     statearray: Vec<Vec<usize>>,

@@ -5,6 +5,7 @@ use super::*;
 mod casualty;
 use casualty::Casualty;
 
+#[allow(dead_code)]
 pub struct Casualties {
     database: HashMap<usize, Option<Casualty>>,
 }

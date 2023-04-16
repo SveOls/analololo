@@ -5,6 +5,7 @@ use super::*;
 mod character;
 use character::Character;
 
+#[allow(dead_code)]
 pub struct CharacterManager {
     database: HashMap<usize, Option<Character>>,
 }

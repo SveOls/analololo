@@ -5,6 +5,7 @@ use super::*;
 mod battle;
 use battle::Battle;
 
+#[allow(dead_code)]
 pub struct BattleManager {
     database: HashMap<usize, Option<Battle>>,
 }

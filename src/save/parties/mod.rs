@@ -7,6 +7,7 @@ mod potential;
 use party::Party;
 use potential::Potential;
 
+#[allow(dead_code)]
 pub struct Parties {
     database: HashMap<usize, Party>,
     countries: Vec<Potential>,

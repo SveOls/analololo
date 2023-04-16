@@ -5,6 +5,7 @@ use super::*;
 mod order;
 use order::Order;
 
+#[allow(dead_code)]
 pub struct OrderManager {
     database: HashMap<usize, Option<Order>>,
 }

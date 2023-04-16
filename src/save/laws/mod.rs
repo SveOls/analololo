@@ -5,6 +5,7 @@ use super::*;
 mod law;
 use law::Law;
 
+#[allow(dead_code)]
 pub struct Laws {
     database: HashMap<usize, Option<Law>>,
 }

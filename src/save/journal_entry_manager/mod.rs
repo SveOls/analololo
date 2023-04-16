@@ -5,6 +5,7 @@ use super::*;
 mod journal_entry;
 use journal_entry::JournalEntry;
 
+#[allow(dead_code)]
 pub struct JournalEntryManager {
     database: HashMap<usize, Option<JournalEntry>>,
 }

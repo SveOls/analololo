@@ -5,6 +5,7 @@ use super::*;
 mod combat_unit;
 use combat_unit::CombatUnit;
 
+#[allow(dead_code)]
 pub struct CombatUnitManager {
     database: HashMap<usize, Option<CombatUnit>>,
 }

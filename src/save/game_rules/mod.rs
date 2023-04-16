@@ -1,10 +1,11 @@
-use std::collections::HashMap;
+
 
 use super::*;
 
 mod setting;
 use setting::Setting;
 
+#[allow(dead_code)]
 pub struct GameRules {
     settings: Vec<Setting>,
 }

@@ -5,6 +5,7 @@ use super::*;
 mod pact;
 use pact::Pact;
 
+#[allow(dead_code)]
 pub struct Pacts {
     database: HashMap<usize, Option<Pact>>,
 }

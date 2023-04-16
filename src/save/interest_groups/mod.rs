@@ -5,6 +5,7 @@ use super::*;
 mod interest_group;
 use interest_group::InterestGroup;
 
+#[allow(dead_code)]
 pub struct InterestGroups {
     database: HashMap<usize, Option<InterestGroup>>,
 }

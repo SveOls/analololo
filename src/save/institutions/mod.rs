@@ -5,6 +5,7 @@ use super::*;
 mod institution;
 use institution::Institution;
 
+#[allow(dead_code)]
 pub struct Institutions {
     database: HashMap<usize, Option<Institution>>,
 }

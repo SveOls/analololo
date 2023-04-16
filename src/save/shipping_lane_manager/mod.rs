@@ -5,6 +5,7 @@ use super::*;
 mod shipping_lane;
 use shipping_lane::ShippingLane;
 
+#[allow(dead_code)]
 pub struct ShippingLaneManager {
     database: HashMap<usize, Option<ShippingLane>>,
 }

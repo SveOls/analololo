@@ -5,6 +5,7 @@ use super::*;
 mod objective;
 use objective::Objective;
 
+#[allow(dead_code)]
 pub struct ObjectiveManager {
     database: HashMap<usize, Option<Objective>>,
 }

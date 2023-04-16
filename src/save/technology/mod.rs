@@ -5,6 +5,7 @@ use super::*;
 mod techs;
 use techs::Techs;
 
+#[allow(dead_code)]
 pub struct Technology {
     database: HashMap<usize, Option<Techs>>,
 }

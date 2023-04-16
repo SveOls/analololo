@@ -5,6 +5,7 @@ use super::*;
 mod proposal;
 use proposal::Proposal;
 
+#[allow(dead_code)]
 pub struct Proposals {
     database: HashMap<usize, Option<Proposal>>,
 }

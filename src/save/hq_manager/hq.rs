@@ -5,7 +5,7 @@ pub struct Hq {}
 
 impl Hq {
     pub fn new(inp: ObjectReader<Utf8Encoding>) -> Result<Self, Box<dyn Error>> {
-        for (key, _, value) in inp.fields() {
+        for (key, _, _value) in inp.fields() {
             match key.read_str().as_ref() {
                 "garrison_counter" => {}
                 "counters" => {}

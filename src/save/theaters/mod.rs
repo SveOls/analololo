@@ -5,6 +5,7 @@ use super::*;
 mod theater;
 use theater::Theater;
 
+#[allow(dead_code)]
 pub struct Theaters {
     database: HashMap<usize, Option<Theater>>,
 }

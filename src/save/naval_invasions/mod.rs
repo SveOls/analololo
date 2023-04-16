@@ -5,6 +5,7 @@ use super::*;
 mod naval_invasion;
 use naval_invasion::NavalInvasion;
 
+#[allow(dead_code)]
 pub struct NavalInvasions {
     database: HashMap<usize, Option<NavalInvasion>>,
 }

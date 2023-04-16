@@ -5,6 +5,7 @@ use super::*;
 mod political_movement;
 use political_movement::PoliticalMovement;
 
+#[allow(dead_code)]
 pub struct PoliticalMovementManager {
     database: HashMap<usize, Option<PoliticalMovement>>,
 }

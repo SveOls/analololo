@@ -5,6 +5,7 @@ use super::*;
 mod front;
 use front::Front;
 
+#[allow(dead_code)]
 pub struct Fronts {
     database: HashMap<usize, Option<Front>>,
 }

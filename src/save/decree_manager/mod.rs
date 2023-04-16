@@ -5,6 +5,7 @@ use super::*;
 mod decree;
 use decree::Decree;
 
+#[allow(dead_code)]
 pub struct DecreeManager {
     database: HashMap<usize, Option<Decree>>,
 }

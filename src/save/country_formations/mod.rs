@@ -1,10 +1,10 @@
-use std::collections::HashMap;
 
 use super::*;
 
 mod country_formation;
 use country_formation::CountryFormation;
 
+#[allow(dead_code)]
 pub struct CountryFormations {
     formations: Vec<CountryFormation>,
 }

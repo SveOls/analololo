@@ -5,6 +5,7 @@ use super::*;
 mod hq;
 use hq::Hq;
 
+#[allow(dead_code)]
 pub struct HqManager {
     database: HashMap<usize, Option<Hq>>,
 }

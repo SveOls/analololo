@@ -5,6 +5,7 @@ use super::*;
 mod civil_war_one;
 use civil_war_one::CivilWarOne;
 
+#[allow(dead_code)]
 pub struct CivilWar {
     database: HashMap<usize, Option<CivilWarOne>>,
 }

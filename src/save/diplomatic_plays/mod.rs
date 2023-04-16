@@ -5,6 +5,7 @@ use super::*;
 mod diplomatic_play;
 use diplomatic_play::DiplomaticPlay;
 
+#[allow(dead_code)]
 pub struct DiplomaticPlays {
     database: HashMap<usize, Option<DiplomaticPlay>>,
 }

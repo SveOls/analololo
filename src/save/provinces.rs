@@ -1,5 +1,6 @@
 use super::*;
 
+#[allow(dead_code)]
 pub struct Province {
     state: Option<usize>,
     building: Option<String>,
