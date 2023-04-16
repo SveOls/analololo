@@ -1,14 +1,9 @@
-
 use super::*;
 
-
-pub struct PreviouslyPlayed {
-
-}
+pub struct PreviouslyPlayed {}
 
 impl PreviouslyPlayed {
     pub fn new_group(inp: ArrayReader<Utf8Encoding>) -> Result<Vec<Self>, Box<dyn Error>> {
-
         let mut ret = Vec::new();
 
         for value in inp.values() {
@@ -17,15 +12,13 @@ impl PreviouslyPlayed {
         Ok(ret)
     }
     pub fn new(inp: ObjectReader<Utf8Encoding>) -> Result<Self, Box<dyn Error>> {
-
-
         for (key, _, value) in inp.fields() {
             match key.read_str().as_ref() {
-                "idtype" => {},
-                "name" => {},
-                a => println!("\t\t\t\t\"{a}\" => {{}},")
+                "idtype" => {}
+                "name" => {}
+                a => println!("\t\t\t\t\"{a}\" => {{}},"),
             }
         }
-        Ok(Self {  })
+        Ok(Self {})
     }
 }

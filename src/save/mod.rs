@@ -1,111 +1,110 @@
-use std::error::Error;
+use std::{error::Error, fs::File, io::Read};
 
-use jomini::{text::ObjectReader, text::ArrayReader, Scalar, Utf8Encoding};
+use jomini::{text::ArrayReader, text::ObjectReader, Scalar, TextTape, Utf8Encoding};
 
-
-
-mod events;
-mod metadata;
-mod ironman;
-mod interest_groups;
-mod technology;
-mod variables;
+mod ai;
+mod battle_manager;
+mod building_manager;
+mod casualties;
+mod character_manager;
+mod civil_war;
+mod combat_unit_manager;
+mod counters;
+mod country_formations;
 mod country_manager;
 mod country_rankings;
-mod pops;
-mod market_manager;
-mod parties;
-mod institutions;
-mod counters;
-mod states;
-mod laws;
-mod diplomatic_actions;
-mod battle_manager;
-mod provinces;
-mod ai;
-mod character_manager;
-mod diplomatic_plays;
-mod relations;
-mod war_manager;
 mod cultures;
+mod decree_manager;
+mod diplomatic_actions;
+mod diplomatic_plays;
+mod election_manager;
+mod events;
+mod fronts;
+mod game_rules;
+mod hq_manager;
+mod institutions;
+mod interest_groups;
+mod interest_manager;
+mod ironman;
+mod journal_entry_manager;
+mod laws;
+mod market_manager;
+mod metadata;
+mod naval_invasions;
+mod objective_manager;
+mod order_manager;
+mod pacts;
+mod parties;
+mod political_movement_manager;
+mod pops;
+mod previously_played;
 mod proposals;
-mod theaters;
-mod civil_war;
+mod provinces;
+mod relations;
 mod shipping_lane_manager;
 mod state_region_manager;
-mod decree_manager;
-mod political_movement_manager;
-mod pacts;
-mod trade_route_manager;
-mod interest_manager;
-mod order_manager;
-mod fronts;
-mod hq_manager;
-mod combat_unit_manager;
-mod tasks;
-mod naval_invasions;
-mod previously_played;
-mod casualties;
-mod country_formations;
-mod journal_entry_manager;
-mod building_manager;
-mod election_manager;
-mod supply_network_manager;
+mod states;
 mod supply_area_manager;
-mod objective_manager;
+mod supply_network_manager;
+mod tasks;
+mod technology;
+mod theaters;
+mod trade_route_manager;
 mod tutorial_manager;
-mod game_rules;
-use previously_played::PreviouslyPlayed;
-use tutorial_manager::TutorialManager;
-use game_rules::GameRules;
-use tasks::Tasks;
-use country_formations::CountryFormations;
-use supply_network_manager::SupplyNetworkManager;
-use shipping_lane_manager::ShippingLaneManager;
-use political_movement_manager::PoliticalMovementManager;
-use objective_manager::ObjectiveManager;
-use election_manager::ElectionManager;
-use building_manager::BuildingManager;
-use journal_entry_manager::JournalEntryManager;
-use casualties::Casualties;
-use naval_invasions::NavalInvasions;
-use combat_unit_manager::CombatUnitManager;
-use interest_manager::InterestManager;
-use order_manager::OrderManager;
-use fronts::Fronts;
-use hq_manager::HqManager;
-use trade_route_manager::TradeRouteManager;
-use decree_manager::DecreeManager;
-use state_region_manager::StateRegionManager;
-use theaters::Theaters;
-use proposals::Proposals;
-use civil_war::CivilWar;
-use battle_manager::BattleManager;
+mod variables;
+mod war_manager;
 use ai::Ai;
-use diplomatic_actions::DiplomaticActions;
-use relations::Relations;
-use diplomatic_plays::DiplomaticPlays;
-use pacts::Pacts;
-use metadata::Metadata;
-use interest_groups::InterestGroups;
-use ironman::Ironman;
-use market_manager::MarketManager;
-use country_rankings::CountryRankings;
-use counters::Counters;
-use war_manager::WarManager;
+use battle_manager::BattleManager;
+use building_manager::BuildingManager;
+use casualties::Casualties;
 use character_manager::CharacterManager;
-use technology::Technology;
-use pops::Pops;
-use supply_area_manager::SupplyAreaManager;
-use events::Events;
-use laws::Laws;
+use civil_war::CivilWar;
+use combat_unit_manager::CombatUnitManager;
+use counters::Counters;
+use country_formations::CountryFormations;
 use country_manager::CountryManager;
-use institutions::Institutions;
-use variables::Variables;
+use country_rankings::CountryRankings;
 use cultures::Cultures;
-use states::States;
-use provinces::Province;
+use decree_manager::DecreeManager;
+use diplomatic_actions::DiplomaticActions;
+use diplomatic_plays::DiplomaticPlays;
+use election_manager::ElectionManager;
+use events::Events;
+use fronts::Fronts;
+use game_rules::GameRules;
+use hq_manager::HqManager;
+use institutions::Institutions;
+use interest_groups::InterestGroups;
+use interest_manager::InterestManager;
+use ironman::Ironman;
+use journal_entry_manager::JournalEntryManager;
+use laws::Laws;
+use market_manager::MarketManager;
+use metadata::Metadata;
+use naval_invasions::NavalInvasions;
+use objective_manager::ObjectiveManager;
+use order_manager::OrderManager;
+use pacts::Pacts;
 use parties::Parties;
+use political_movement_manager::PoliticalMovementManager;
+use pops::Pops;
+use previously_played::PreviouslyPlayed;
+use proposals::Proposals;
+use provinces::Province;
+use relations::Relations;
+use shipping_lane_manager::ShippingLaneManager;
+use state_region_manager::StateRegionManager;
+use states::States;
+use supply_area_manager::SupplyAreaManager;
+use supply_network_manager::SupplyNetworkManager;
+use tasks::Tasks;
+use technology::Technology;
+use theaters::Theaters;
+use trade_route_manager::TradeRouteManager;
+use tutorial_manager::TutorialManager;
+use variables::Variables;
+use war_manager::WarManager;
+use zip::ZipArchive;
 
 #[allow(dead_code)]
 pub struct Save {
@@ -169,7 +168,25 @@ pub struct Save {
 }
 
 impl Save {
-    pub fn new(inp: ObjectReader<Utf8Encoding>) -> Result<Self, Box<dyn Error>> {
+    pub fn pops(&self) -> &Pops {
+        &self.pops
+    }
+    pub fn countries(&self) -> &CountryManager {
+        &self.country_manager
+    }
+    pub fn cultures(&self) -> &Cultures {
+        &self.cultures
+    }
+    pub fn buildings(&self) -> &BuildingManager {
+        &self.building_manager
+    }
+    pub fn new(stuff: File) -> Result<Self, Box<dyn Error>> {
+        let mut a = ZipArchive::new(stuff)?;
+        let mut info = Vec::new();
+        a.by_name("gamestate")?.read_to_end(&mut info)?;
+
+        let inp = TextTape::from_slice(&info)?;
+        let inp = inp.utf8_reader();
 
         let mut metadata = None;
         let mut ironman = None;
@@ -230,7 +247,7 @@ impl Save {
         let mut political_movement_manager = None;
 
         for (key, _, value) in inp.fields() {
-            println!("start {}", key.read_string());
+            // println!("start {}", key.read_string());
             match key.read_str().as_ref() {
                 "meta_data" => metadata = Some(Metadata::new(value.read_object()?)?),
                 "ironman" => ironman = Some(Ironman::new(value.read_object()?)?),
@@ -241,57 +258,108 @@ impl Save {
                 "seed_count" => seed_count = Some(value.read_scalar()?.to_i64()?),
                 "speed" => speed = Some(value.read_scalar()?.to_i64()?),
                 "first_start" => first_start = Some(value.read_scalar()?.to_bool()?),
-                "previous_played" => previously_played = Some(PreviouslyPlayed::new_group(value.read_array()?)?),
+                "previous_played" => {
+                    previously_played = Some(PreviouslyPlayed::new_group(value.read_array()?)?)
+                }
                 "counters" => counters = Some(Counters::new(value.read_object()?)?),
                 "variables" => variables = Some(Variables::new(value.read_object()?)?),
                 "provinces" => provinces = Some(Province::new_group(value.read_object()?)?),
-                "country_manager" => country_manager = Some(CountryManager::new(value.read_object()?)?),
+                "country_manager" => {
+                    country_manager = Some(CountryManager::new(value.read_object()?)?)
+                }
                 "states" => states = Some(States::new(value.read_object()?)?),
-                "interest_groups" => interest_groups = Some(InterestGroups::new(value.read_object()?)?),
-                "country_rankings" => country_rankings = Some(CountryRankings::new(value.read_object()?)?),
+                "interest_groups" => {
+                    interest_groups = Some(InterestGroups::new(value.read_object()?)?)
+                }
+                "country_rankings" => {
+                    country_rankings = Some(CountryRankings::new(value.read_object()?)?)
+                }
                 "parties" => parties = Some(Parties::new(value.read_object()?)?),
                 "laws" => laws = Some(Laws::new(value.read_object()?)?),
                 "institutions" => institutions = Some(Institutions::new(value.read_object()?)?),
                 "cultures" => cultures = Some(Cultures::new(value.read_object()?)?),
-                "character_manager" => character_manager = Some(CharacterManager::new(value.read_object()?)?),
-                "market_manager" => market_manager = Some(MarketManager::new(value.read_object()?)?),
+                "character_manager" => {
+                    character_manager = Some(CharacterManager::new(value.read_object()?)?)
+                }
+                "market_manager" => {
+                    market_manager = Some(MarketManager::new(value.read_object()?)?)
+                }
                 "technology" => technology = Some(Technology::new(value.read_object()?)?),
                 "events" => events = Some(Events::new(value.read_object()?)?),
                 "pacts" => pacts = Some(Pacts::new(value.read_object()?)?),
                 "relations" => relations = Some(Relations::new(value.read_object()?)?),
-                "diplomatic_plays" => diplomatic_plays = Some(DiplomaticPlays::new(value.read_object()?)?),
-                "diplomatic_actions" => diplomatic_actions = Some(DiplomaticActions::new(value.read_object()?)?),
+                "diplomatic_plays" => {
+                    diplomatic_plays = Some(DiplomaticPlays::new(value.read_object()?)?)
+                }
+                "diplomatic_actions" => {
+                    diplomatic_actions = Some(DiplomaticActions::new(value.read_object()?)?)
+                }
                 "ai" => ai = Some(Ai::new(value.read_object()?)?),
                 "war_manager" => war_manager = Some(WarManager::new(value.read_object()?)?),
-                "battle_manager" => battle_manager = Some(BattleManager::new(value.read_object()?)?),
+                "battle_manager" => {
+                    battle_manager = Some(BattleManager::new(value.read_object()?)?)
+                }
                 "proposals" => proposals = Some(Proposals::new(value.read_object()?)?),
                 "theaters" => theaters = Some(Theaters::new(value.read_object()?)?),
-                "building_manager" => building_manager = Some(BuildingManager::new(value.read_object()?)?),
-                "trade_route_manager" => trade_route_manager = Some(TradeRouteManager::new(value.read_object()?)?),
-                "decree_manager" => decree_manager = Some(DecreeManager::new(value.read_object()?)?),
+                "building_manager" => {
+                    building_manager = Some(BuildingManager::new(value.read_object()?)?)
+                }
+                "trade_route_manager" => {
+                    trade_route_manager = Some(TradeRouteManager::new(value.read_object()?)?)
+                }
+                "decree_manager" => {
+                    decree_manager = Some(DecreeManager::new(value.read_object()?)?)
+                }
                 "fronts" => fronts = Some(Fronts::new(value.read_object()?)?),
-                "interest_manager" => interest_manager = Some(InterestManager::new(value.read_object()?)?),
+                "interest_manager" => {
+                    interest_manager = Some(InterestManager::new(value.read_object()?)?)
+                }
                 "order_manager" => order_manager = Some(OrderManager::new(value.read_object()?)?),
-                "naval_invasions" => naval_invasions = Some(NavalInvasions::new(value.read_object()?)?),
+                "naval_invasions" => {
+                    naval_invasions = Some(NavalInvasions::new(value.read_object()?)?)
+                }
                 "civil_war" => civil_war = Some(CivilWar::new(value.read_object()?)?),
-                "combat_unit_manager" => combat_unit_manager = Some(CombatUnitManager::new(value.read_object()?)?),
-                "journal_entry_manager" => journal_entry_manager = Some(JournalEntryManager::new(value.read_object()?)?),
-                "state_region_manager" => state_region_manager = Some(StateRegionManager::new(value.read_object()?)?),
-                "election_manager" => election_manager = Some(ElectionManager::new(value.read_object()?)?),
+                "combat_unit_manager" => {
+                    combat_unit_manager = Some(CombatUnitManager::new(value.read_object()?)?)
+                }
+                "journal_entry_manager" => {
+                    journal_entry_manager = Some(JournalEntryManager::new(value.read_object()?)?)
+                }
+                "state_region_manager" => {
+                    state_region_manager = Some(StateRegionManager::new(value.read_object()?)?)
+                }
+                "election_manager" => {
+                    election_manager = Some(ElectionManager::new(value.read_object()?)?)
+                }
                 "hq_manager" => hq_manager = Some(HqManager::new(value.read_object()?)?),
-                "objective_manager" => objective_manager = Some(ObjectiveManager::new(value.read_object()?)?),
-                "political_movement_manager" => political_movement_manager = Some(PoliticalMovementManager::new(value.read_object()?)?),
+                "objective_manager" => {
+                    objective_manager = Some(ObjectiveManager::new(value.read_object()?)?)
+                }
+                "political_movement_manager" => {
+                    political_movement_manager =
+                        Some(PoliticalMovementManager::new(value.read_object()?)?)
+                }
                 "casualties" => casualties = Some(Casualties::new(value.read_object()?)?),
-                "shipping_lane_manager" => shipping_lane_manager = Some(ShippingLaneManager::new(value.read_object()?)?),
+                "shipping_lane_manager" => {
+                    shipping_lane_manager = Some(ShippingLaneManager::new(value.read_object()?)?)
+                }
                 "tasks" => tasks = Some(Tasks::new(value.read_object()?)?),
                 "game_rules" => game_rules = Some(GameRules::new(value.read_object()?)?),
-                "supply_network_manager" => supply_network_manager = Some(SupplyNetworkManager::new(value.read_object()?)?),
-                "supply_area_manager" => supply_area_manager = Some(SupplyAreaManager::new(value.read_object()?)?),
-                "country_formations" => country_formations = Some(CountryFormations::new(value.read_object()?)?),
-                "tutorial_manager" => tutorial_manager = Some(TutorialManager::new(value.read_object()?)?),
-                a => println!("missing >{a}<")
+                "supply_network_manager" => {
+                    supply_network_manager = Some(SupplyNetworkManager::new(value.read_object()?)?)
+                }
+                "supply_area_manager" => {
+                    supply_area_manager = Some(SupplyAreaManager::new(value.read_object()?)?)
+                }
+                "country_formations" => {
+                    country_formations = Some(CountryFormations::new(value.read_object()?)?)
+                }
+                "tutorial_manager" => {
+                    tutorial_manager = Some(TutorialManager::new(value.read_object()?)?)
+                }
+                a => println!("missing >{a}<"),
             }
-            println!("end {}", key.read_string());
+            // println!("end {}", key.read_string());
         }
         Ok(Self {
             metadata: metadata.unwrap(),
