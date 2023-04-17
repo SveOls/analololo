@@ -13,8 +13,8 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn tester() -> Result<(), Box<dyn Error>> {
-    // let filename = "data/roman republic_1947_02_17.v3";
-    let filename = "data/papal states_1838_08_10.v3";
+    let filename = "data/roman republic_1947_02_17.v3";
+    // let filename = "data/papal states_1838_08_10.v3";
 
     let tits = save::Save::new(File::open(filename)?)?;
 
