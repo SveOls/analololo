@@ -1,4 +1,3 @@
-
 use super::*;
 
 mod country_formation;

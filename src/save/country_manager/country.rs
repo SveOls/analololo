@@ -1,4 +1,3 @@
-
 use super::*;
 
 #[derive(Debug, Default)]
@@ -11,7 +10,6 @@ impl Country {
         &self.states
     }
     pub fn new(inp: ObjectReader<Utf8Encoding>) -> Result<Self, Box<dyn Error>> {
-        
         let mut ret = Self::default();
 
         for (key, _, value) in inp.fields() {
@@ -20,7 +18,13 @@ impl Country {
                 "religion" => {}
                 "pop_statistics" => {}
                 "pop_radicals_and_loyalists_statistics" => {}
-                "states" => ret.states = value.read_array()?.values().map(|x| x.read_scalar().unwrap().to_u64().unwrap() as usize).collect(),
+                "states" => {
+                    ret.states = value
+                        .read_array()?
+                        .values()
+                        .map(|x| x.read_scalar().unwrap().to_u64().unwrap() as usize)
+                        .collect()
+                }
                 "timed_modifiers" => {}
                 "outliner_data" => {}
                 "government_queue" => {}

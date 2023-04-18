@@ -1,7 +1,12 @@
 #![feature(iterator_try_collect)]
 
-use std::{error::Error, fs::File};
+use std::{
+    error::Error,
+    fs::File,
+    path::{Path, PathBuf},
+};
 
+mod game;
 mod save;
 mod scanner;
 
@@ -13,10 +18,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn tester() -> Result<(), Box<dyn Error>> {
-    let filename = "data/roman republic_1947_02_17.v3";
-    // let filename = "data/papal states_1838_08_10.v3";
+    // let filename = "data/roman republic_1947_02_17.v3";
+    let filename = "data/papal states_1838_08_10.v3";
+    let gameloc = PathBuf::from(r"/mnt/c/Steam/steamapps/common/Victoria 3");
 
     let tits = save::Save::new(File::open(filename)?)?;
+    let gam = game::Game::new(&gameloc)?;
+    panic!();
 
     let holdo = scanner::Holder::new(tits);
 
@@ -39,12 +47,19 @@ fn tester() -> Result<(), Box<dyn Error>> {
         println!("{} {:?}", i.0, i.1);
     }
     for i in culpop.iter() {
-        let tot = i.1.1.values().sum::<i64>() as f64 / 100.0;
-        println!("{}: {:.2?}", i.1.0, i.1.1.iter().map(|(k, &v)| (k, v as f64 / tot)).collect::<Vec<(_, _)>>());
+        let tot = i.1 .1.values().sum::<i64>() as f64 / 100.0;
+        println!(
+            "{}: {:.2?}",
+            i.1 .0,
+            i.1 .1
+                .iter()
+                .map(|(k, &v)| (k, v as f64 / tot))
+                .collect::<Vec<(_, _)>>()
+        );
     }
     let solcul = holdo.culture_sol();
     for i in solcul.iter() {
-        println!("{:18}: {:.2}", i.1.0, i.1.1);
+        println!("{:18}: {:.2}", i.1 .0, i.1 .1);
     }
 
     Ok(())
