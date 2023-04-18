@@ -20,6 +20,9 @@ pub struct Pop {
 }
 
 impl Pop {
+    pub fn job(&self) -> Option<&String> {
+        self.job.as_ref()
+    }
     pub fn size(&self) -> i64 {
         self.workforce() + self.dependents()
     }

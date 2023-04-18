@@ -156,14 +156,51 @@ impl Holder {
             (*ret.entry(goods[i.0].name()).or_insert([0.0, 0.0]))[0] += i.1;
             (*ret.entry(goods[i.0].name()).or_insert([0.0, 0.0]))[1] += i.2;
         }
+        // for (a, pop) in pops.iter().filter_map(|x| x.1.as_ref().map(|y| (x.0, y))) {
+        //     let scales = states.get(&pop.location()).map(|x| x.as_ref().map(|y| y.pop_needs().get(&pop.culture()))).flatten().flatten().unwrap();
+        //     let factor = (pop.workforce() as f64 + pop.dependents() as f64 / 2.0) / 300_000.0;
+        //     for (need_name, amount) in buy_packages[pop.wealth() as usize - 1].goods().iter() {
+        //         let weights = needs.iter().position(|x| x.name() == need_name).map(|y| &scales[y]).unwrap();
+        //         // panic!("{} {} {:?} {:?}", a, need_name, amount, weights);
+        //         let base_price = needs.iter().find(|x| x.name() == need_name).map(|y| goods.iter().find(|z| z.name() == y.default_good()).map(|o| o.price())).flatten().unwrap();
+        //         let tot_weight = weights.iter().map(|x| x.1).fold(0.0, |acc, x| acc + x);
+        //         for (good, weight) in weights {
+        //             // if *a == 6616 {
+        //             //     println!("{}", good);
+        //             //     println!("{}", weight);
+        //             //     println!("{}", tot_weight);
+        //             //     println!("{}", base_price);
+        //             //     println!("{}", factor);
+        //             //     println!("{}", amount);
+        //             //     println!("{}\n", (weight / tot_weight) * (base_price / goods[*good].price()) * factor * amount);
+        //             // }
+        //             (*ret.entry(goods[*good].name()).or_insert([0.0, 0.0]))[0] += (weight / tot_weight) * (base_price / goods[*good].price()) * factor * amount;
+        //         }
+        //     }
+        //     // if *a == 6616 {panic!()}
+        // }
         for (a, pop) in pops.iter().filter_map(|x| x.1.as_ref().map(|y| (x.0, y))) {
             let scales = states.get(&pop.location()).map(|x| x.as_ref().map(|y| y.pop_needs().get(&pop.culture()))).flatten().flatten().unwrap();
-            let factor = (pop.workforce() as f64 + pop.dependents() as f64 / 2.0) / 300_000.0;
-            for ((need_name, amount), weights) in buy_packages[pop.wealth() as usize - 1].goods().iter().zip(states.get(&pop.location()).map(|x| x.as_ref().map(|y| y.pop_needs().get(&pop.culture()))).flatten().flatten().unwrap().iter()) {
+            let factor = (pop.workforce() as f64 + pop.dependents() as f64 / 2.0) / 10_000.0;
+            for (need_name, amount) in buy_packages[pop.wealth() as usize - 1].goods().iter() {
+                let weights = needs.iter().position(|x| x.name() == need_name).map(|y| &scales[y]).unwrap();
                 // panic!("{} {} {:?} {:?}", a, need_name, amount, weights);
-                let base_price = needs.iter().find(|x| x.name() == need_name).map(|y| goods.iter().find(|z| z.name() == y.default_good()).map(|o| o.price()));
-
+                let base_price = needs.iter().find(|x| x.name() == need_name).map(|y| goods.iter().find(|z| z.name() == y.default_good()).map(|o| o.price())).flatten().unwrap();
+                let tot_weight = weights.iter().map(|x| x.1).fold(0.0, |acc, x| acc + x);
+                for (good, weight) in weights {
+                    // if *a == 6616 {
+                    //     println!("{}", good);
+                    //     println!("{}", weight);
+                    //     println!("{}", tot_weight);
+                    //     println!("{}", base_price);
+                    //     println!("{}", factor);
+                    //     println!("{}", amount);
+                    //     println!("{}\n", (weight / tot_weight) * (base_price / goods[*good].price()) * factor * amount);
+                    // }
+                    (*ret.entry(goods[*good].name()).or_insert([0.0, 0.0]))[0] += (weight / tot_weight) / goods[*good].price() * factor * amount;
+                }
             }
+            // if *a == 6616 {panic!()}
             
         }
 
