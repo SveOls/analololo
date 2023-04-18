@@ -4,11 +4,12 @@ use super::*;
 
 pub struct Holder {
     save: save::Save,
+    game: game::Game,
 }
 
 impl Holder {
-    pub fn new(save: save::Save) -> Self {
-        Self { save }
+    pub fn new(save: save::Save, game: game::Game) -> Self {
+        Self { save, game }
     }
     pub fn population(&self, religion: Option<&str>, culture: Option<usize>) -> i64 {
         self.save
@@ -102,7 +103,7 @@ impl Holder {
             .map(|(k, v)| (k, (v.0, solo.get(&k).unwrap().1 as f64 / v.1 as f64)))
             .collect()
     }
-    // incorrect
+    /// incorrect - c. 5% underestimation across the board
     pub fn global_gdp(&self) -> f64 {
         self.save
             .buildings()
@@ -112,7 +113,7 @@ impl Holder {
             .fold(0.0, |acc, x| acc + x.goods_net())
             * 52.0
     }
-    // incorrect
+    /// incorrect - c. 5% underestimation across the board
     pub fn national_gdp(&self) -> HashMap<usize, f64> {
         let mut buildings: HashMap<usize, f64> = HashMap::new();
         self.save
@@ -134,6 +135,57 @@ impl Holder {
                 count += *buildings.get(i).unwrap_or(&0.0);
             }
             ret.insert(country, count * 52.0);
+        }
+        ret
+    }
+    pub fn global_goods(&self) -> HashMap<&str, [f64; 2]> {
+        let mut ret = HashMap::new();
+        let goods = self.game.goods();
+        let needs = self.game.needs();
+        let buy_packages = self.game.buy_packages();
+        let pops = self.save.pops().database();
+        let states = self.save.states().database();
+        for i in self
+            .save
+            .buildings()
+            .database()
+            .iter()
+            .filter_map(|x| x.1.as_ref().map(|x| x.goods_test()))
+            .flatten()
+        {
+            (*ret.entry(goods[i.0].name()).or_insert([0.0, 0.0]))[0] += i.1;
+            (*ret.entry(goods[i.0].name()).or_insert([0.0, 0.0]))[1] += i.2;
+        }
+        for (a, pop) in pops.iter().filter_map(|x| x.1.as_ref().map(|y| (x.0, y))) {
+            let scales = states.get(&pop.location()).map(|x| x.as_ref().map(|y| y.pop_needs().get(&pop.culture()))).flatten().flatten().unwrap();
+            let factor = (pop.workforce() as f64 + pop.dependents() as f64 / 2.0) / 300_000.0;
+            for ((need_name, amount), weights) in buy_packages[pop.wealth() as usize - 1].goods().iter().zip(states.get(&pop.location()).map(|x| x.as_ref().map(|y| y.pop_needs().get(&pop.culture()))).flatten().flatten().unwrap().iter()) {
+                // panic!("{} {} {:?} {:?}", a, need_name, amount, weights);
+                let base_price = needs.iter().find(|x| x.name() == need_name).map(|y| goods.iter().find(|z| z.name() == y.default_good()).map(|o| o.price()));
+
+            }
+            
+        }
+
+        ret
+    }
+    pub fn market_gdp(&self) -> HashMap<usize, f64> {
+        let mut buildings: HashMap<usize, f64> = HashMap::new();
+        self.save
+            .buildings()
+            .database()
+            .values()
+            .filter_map(|x| x.as_ref())
+            .for_each(|x| *buildings.entry(x.location()).or_default() += x.goods_net());
+        let mut ret: HashMap<usize, f64> = HashMap::new();
+        for (state, market) in self
+            .save
+            .states()
+            .database()
+            .iter()
+            .filter_map(|(k, v)| v.as_ref().map(|x| (*k, x.market())))
+        {
+            *ret.entry(market).or_default() += buildings.get(&state).unwrap() * 52.0;
         }
         ret
     }

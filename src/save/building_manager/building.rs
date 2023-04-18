@@ -3,11 +3,30 @@ use super::*;
 #[derive(Debug, Default)]
 pub struct Building {
     goods_cost: f64,
+    name: String,
     goods_sales: f64,
     location: usize,
+    input_goods: Vec<(usize, f64)>,
+    output_goods: Vec<(usize, f64)>,
 }
 
 impl Building {
+    pub fn goods_test(&self) -> Vec<(usize, f64, f64)> {
+        let mut ret: Vec<(usize, f64, f64)> =
+            self.input_goods.iter().map(|x| (x.0, x.1, 0.0)).collect();
+        for i in &self.output_goods {
+            if let Some(a) = ret.iter_mut().find(|x| x.0 == i.0) {
+                (*a).2 = i.1
+            } else {
+                ret.push((i.0, 0.0, i.1))
+            }
+        }
+        // if self.name == "building_motor_industry" {
+        //     println!("{:?}", ret);
+        //     panic!("{:?}", self);
+        // }
+        ret
+    }
     pub fn goods_sales(&self) -> f64 {
         self.goods_sales
     }
@@ -25,14 +44,40 @@ impl Building {
 
         for (key, _, value) in inp.fields() {
             match key.read_str().as_ref() {
-                "building" => {}
+                "building" => ret.name = value.read_string()?,
                 "level" => {}
                 "last_updated_level" => {}
                 "state" => ret.location = value.read_scalar()?.to_u64()? as usize,
                 "salary_rate" => {}
                 "production_methods" => {}
-                "input_goods" => {}
-                "output_goods" => {}
+                "input_goods" => {
+                    if let Some((_, _, goods)) = value
+                        .read_object()?
+                        .fields()
+                        .find(|x| x.0.read_str().as_ref() == "goods")
+                    {
+                        for (name, _, val) in goods.read_object()?.fields() {
+                            ret.input_goods.push((
+                                name.read_scalar().to_u64()? as usize,
+                                val.read_scalar()?.to_f64()?,
+                            ))
+                        }
+                    }
+                }
+                "output_goods" => {
+                    if let Some((_, _, goods)) = value
+                        .read_object()?
+                        .fields()
+                        .find(|x| x.0.read_str().as_ref() == "goods")
+                    {
+                        for (name, _, val) in goods.read_object()?.fields() {
+                            ret.output_goods.push((
+                                name.read_scalar().to_u64()? as usize,
+                                val.read_scalar()?.to_f64()?,
+                            ))
+                        }
+                    }
+                }
                 "dead" => {}
                 "active" => {}
                 "establishment_date" => {}

@@ -168,6 +168,9 @@ pub struct Save {
 }
 
 impl Save {
+    pub fn states(&self) -> &States {
+        &self.states
+    }
     pub fn pops(&self) -> &Pops {
         &self.pops
     }
@@ -182,9 +185,9 @@ impl Save {
     }
     pub fn new(stuff: File) -> Result<Self, Box<dyn Error>> {
         let mut a = ZipArchive::new(stuff)?;
-        let mut info = Vec::new();
-        a.by_name("gamestate")?.read_to_end(&mut info)?;
-
+        // let mut info = Vec::new();
+        // a.by_name("gamestate")?.read_to_end(&mut info)?;
+        let mut info = std::fs::read("data/gamestate2")?;
         let inp = TextTape::from_slice(&info)?;
         let inp = inp.utf8_reader();
 
@@ -418,7 +421,7 @@ impl Save {
             state_region_manager: state_region_manager.unwrap(),
             trade_route_manager: trade_route_manager.unwrap(),
             political_movement_manager: political_movement_manager.unwrap(),
-            previously_played: previously_played.unwrap(),
+            previously_played: previously_played.unwrap_or(Vec::new()),
         })
     }
 }

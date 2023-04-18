@@ -12,6 +12,9 @@ pub struct States {
 }
 
 impl States {
+    pub fn database(&self) -> &HashMap<usize, Option<State>> {
+        &self.database
+    }
     pub fn new(inp: ObjectReader<Utf8Encoding>) -> Result<Self, Box<dyn Error>> {
         let mut database = None;
         let mut statearray = None;
@@ -19,6 +22,7 @@ impl States {
         for (key, _, value) in inp.fields() {
             match key.read_str().as_ref() {
                 "database" => database = Some(State::new_group(value.read_object()?)?),
+                "dirty_regions_terrain" => {}
                 "state_region_to_state_array" => {
                     statearray = Some(
                         value

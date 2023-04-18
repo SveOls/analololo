@@ -18,9 +18,21 @@ pub struct State {
     previous_owner: Option<String>,
     land: Option<i64>,
     next_colony_province: Option<usize>,
+    // map of culture -> vector of needs
+    // e.g. fish: 1, grain: 3, meat: 1.5 implies a consumption ratio of 1 fish, 3 grain, 1 meat for the "basic food" need, as meat costs 1.5x as much as grain and fish.
+    pop_needs: HashMap<usize, Vec<Vec<(usize, f64)>>>,
 }
 
 impl State {
+    pub fn market(&self) -> usize {
+        self.market
+    }
+    pub fn country(&self) -> usize {
+        self.country
+    }
+    pub fn pop_needs(&self) -> &HashMap<usize, Vec<Vec<(usize, f64)>>> {
+        &self.pop_needs
+    }
     pub fn new(inp: ObjectReader<Utf8Encoding>) -> Result<Self, Box<dyn Error>> {
         let mut arable_land = None;
         let mut incorporation = None;
@@ -37,6 +49,7 @@ impl State {
         let mut capital = None;
         let mut colony_progress = None;
         let mut land = None;
+        let mut pop_needs = HashMap::new();
 
         for (key, _, value) in inp.fields() {
             // println!("{}", key.read_string());
@@ -54,7 +67,24 @@ impl State {
                 "infrastructure_usage" => {
                     infrastructure_usage = Some((value.read_scalar()?.to_f64()? * 10e4) as i64)
                 }
-                "pop_needs" => {}
+                "pop_needs" => {
+                    for (culture, _, inner_value) in value.read_object()?.fields() {
+                        let mut temp = Vec::new();
+                        for (a, _, b) in inner_value.read_object()?.fields() {
+                            match a.read_str().as_ref() {
+                                "pop_need_entry_data" => {
+                                    for tt in b.read_array()?.values() {
+                                        for (_, _, aa) in tt.read_object()?.fields() {
+                                            temp.push(aa.read_object()?.fields().map(|(m, _, n)| (m.read_scalar().to_u64().unwrap() as usize, n.read_scalar().unwrap().to_f64().unwrap())).collect());
+                                        }
+                                    }
+                                }
+                                a => println!("\t\t\t\t\"{a}\" => {{}},"),
+                            }
+                        }
+                        pop_needs.insert(culture.read_scalar().to_u64()? as usize, temp);
+                    }
+                }
                 "building_budget" => {}
                 "variables" => {}
                 "region" => region = Some(value.read_string()?),
@@ -108,6 +138,7 @@ impl State {
             capital: capital.unwrap(),
             colony_progress,
             previous_owner,
+            pop_needs,
             last_owner_change,
         })
     }

@@ -12,18 +12,35 @@ mod strategic_region;
 use strategic_region::StrategicRegion;
 mod good;
 use good::Good;
+mod needs;
+use needs::Needs;
+mod buy_package;
+use buy_package::BuyPackage;
 
 #[derive(Debug, Default)]
 pub struct Game {
     production_methods: HashMap<String, ProductionMethod>,
     pops: HashMap<String, PopType>,
     religions: HashMap<String, Religion>,
-    state_regions: HashMap<String, StateRegion>,
-    strategic_regions: HashMap<String, StrategicRegion>,
-    goods: HashMap<String, Good>,
+    state_regions: Vec<StateRegion>,
+    strategic_regions: Vec<StrategicRegion>,
+    goods: Vec<Good>,
+    needs: Vec<Needs>,
+    /// consumption of 300k working pops. Dependends count for 50%.
+    /// note: SOL of 1 is in index, 0, SOL 2 in 1, and so on. 
+    buy_packages: Vec<BuyPackage>,
 }
 
 impl Game {
+    pub fn goods(&self) -> &Vec<Good> {
+        &self.goods
+    }
+    pub fn buy_packages(&self) -> &Vec<BuyPackage> {
+        &self.buy_packages
+    }
+    pub fn needs(&self) -> &Vec<Needs> {
+        &self.needs
+    }
     pub fn new(path: &Path) -> Result<Self, Box<dyn Error>> {
         let mut ret = Self::default();
 
@@ -34,23 +51,31 @@ impl Game {
         ret.religions = Religion::new_group(&path.join("game").join("common").join("religions"))?;
         ret.state_regions =
             StateRegion::new_group(&path.join("game").join("map_data").join("state_regions"))?;
-        ret.strategic_regions =
-            StrategicRegion::new_group(&path.join("game").join("common").join("strategic_regions"))?;
+        ret.strategic_regions = StrategicRegion::new_group(
+            &path.join("game").join("common").join("strategic_regions"),
+        )?;
         ret.goods = Good::new_group(&path.join("game").join("common").join("goods"))?;
+        ret.needs = Needs::new_group(&path.join("game").join("common").join("pop_needs"))?;
+        ret.buy_packages =
+            BuyPackage::new_group(&path.join("game").join("common").join("buy_packages"))?;
+
 
         // let mut a = ZipArchive::new(stuff)?;
         // let mut info = Vec::new();
         // a.by_name("gamestate")?.read_to_end(&mut info)?;
         let mut iter = 1;
-        for (_, i) in &mut ret.strategic_regions {
-            iter = i.update(&ret.state_regions, iter);
+        for i in &mut ret.strategic_regions {
+            i.set_range(&mut ret.state_regions, &mut iter);
         }
         println!("{:?}", ret.goods);
         // let inp = TextTape::from_slice(&info)?;
         // let inp = inp.utf8_reader();
 
-
-
-        todo!()
+        // todo!()
+        Ok(ret)
     }
 }
+
+//  "x12E54F" "x24CA48" "x4545BE" "xD8F441" "xD9A469" "xE041A0" "xE080A0"
+// 20697 20699 20700 20701 20698 20695 20696
+// 632 675

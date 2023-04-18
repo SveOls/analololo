@@ -14,6 +14,8 @@ pub struct Pop {
     wealth: i64,
     culture: usize,
     location: usize,
+    // { wages subsistence dependents ? dividends ? needs ? income percap/land/poll ? consumption }
+    // missing: dividends tax, interest income,
     weekly_budget: Vec<i64>,
 }
 
@@ -35,6 +37,9 @@ impl Pop {
     }
     pub fn wealth(&self) -> i64 {
         self.wealth
+    }
+    pub fn location(&self) -> usize {
+        self.location
     }
     pub fn new(inp: ObjectReader<Utf8Encoding>) -> Result<Self, Box<dyn Error>> {
         let mut loyalist = 0;
