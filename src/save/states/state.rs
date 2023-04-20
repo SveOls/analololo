@@ -75,7 +75,21 @@ impl State {
                                 "pop_need_entry_data" => {
                                     for tt in b.read_array()?.values() {
                                         for (_, _, aa) in tt.read_object()?.fields() {
-                                            temp.push(aa.read_object()?.fields().map(|(m, _, n)| (m.read_scalar().to_u64().unwrap() as usize, n.read_scalar().unwrap().to_f64().unwrap())).collect());
+                                            temp.push(
+                                                aa.read_object()?
+                                                    .fields()
+                                                    .map(|(m, _, n)| {
+                                                        (
+                                                            m.read_scalar().to_u64().unwrap()
+                                                                as usize,
+                                                            n.read_scalar()
+                                                                .unwrap()
+                                                                .to_f64()
+                                                                .unwrap(),
+                                                        )
+                                                    })
+                                                    .collect(),
+                                            );
                                         }
                                     }
                                 }

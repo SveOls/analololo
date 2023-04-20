@@ -15,6 +15,7 @@ impl Country {
         for (key, _, value) in inp.fields() {
             match key.read_str().as_ref() {
                 "cultures" => {}
+                "banned_goods" => {}
                 "religion" => {}
                 "pop_statistics" => {}
                 "pop_radicals_and_loyalists_statistics" => {}

@@ -1,7 +1,4 @@
-use std::{
-    error::Error,
-    path::Path,
-};
+use std::{error::Error, path::Path};
 
 use jomini::{text::ObjectReader, TextTape, Utf8Encoding};
 
@@ -9,7 +6,7 @@ use jomini::{text::ObjectReader, TextTape, Utf8Encoding};
 pub struct BuyPackage {
     name: String,
     political_strength: f64,
-    goods: Vec<(String, f64)>
+    goods: Vec<(String, f64)>,
 }
 
 impl BuyPackage {
@@ -27,8 +24,17 @@ impl BuyPackage {
             match key.read_str().as_ref() {
                 "political_strength" => ret.political_strength = value.read_scalar()?.to_f64()?,
                 "goods" => {
-                    ret.goods = value.read_object()?.fields().map(|x| (x.0.read_string(), x.2.read_scalar().unwrap().to_f64().unwrap())).collect()
-                },
+                    ret.goods = value
+                        .read_object()?
+                        .fields()
+                        .map(|x| {
+                            (
+                                x.0.read_string(),
+                                x.2.read_scalar().unwrap().to_f64().unwrap(),
+                            )
+                        })
+                        .collect()
+                }
                 a => println!("\t\t\t\t\"{a}\" => {{}},"),
             }
         }

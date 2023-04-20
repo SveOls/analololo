@@ -185,9 +185,8 @@ impl Save {
     }
     pub fn new(stuff: File) -> Result<Self, Box<dyn Error>> {
         let mut a = ZipArchive::new(stuff)?;
-        // let mut info = Vec::new();
-        // a.by_name("gamestate")?.read_to_end(&mut info)?;
-        let mut info = std::fs::read("data/gamestate2")?;
+        let mut info = Vec::new();
+        a.by_name("gamestate")?.read_to_end(&mut info)?;
         let inp = TextTape::from_slice(&info)?;
         let inp = inp.utf8_reader();
 

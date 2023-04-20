@@ -10,6 +10,8 @@ impl DiplomaticAction {
                 "first" => {}
                 "second" => {}
                 "action" => {}
+                "auto_decline_date" => {}
+                "pending" => {}
                 "obligation" => {}
                 a => println!("\t\t\t\t\"{a}\" => {{}},"),
             }

@@ -15,7 +15,7 @@ impl Needs {
     }
     pub fn default_good(&self) -> &str {
         &self.default
-    } 
+    }
     pub fn name(&self) -> &str {
         &self.name
     }

@@ -19,9 +19,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 fn tester() -> Result<(), Box<dyn Error>> {
     // let filename = "data/roman republic_1947_02_17.v3";
-    let filename = "data/papal states_1838_08_10.v3";
-    let gameloc = PathBuf::from(r"/mnt/c/Program Files (x86)/Steam/steamapps/common/Victoria 3");
-    // let gameloc = PathBuf::from(r"/mnt/c/Steam/steamapps/common/Victoria 3");
+    // let filename = "data/prussia_1836_01_03.v3";
+    let filename = "data/indian territory_1846_09_19.v3";
+    // let gameloc = PathBuf::from(r"/mnt/c/Program Files (x86)/Steam/steamapps/common/Victoria 3");
+    let gameloc = PathBuf::from(r"/mnt/c/Steam/steamapps/common/Victoria 3");
 
     let tits = save::Save::new(File::open(filename)?)?;
     let gam = game::Game::new(&gameloc)?;
@@ -46,6 +47,25 @@ fn tester() -> Result<(), Box<dyn Error>> {
         println!("{}", i.0);
         println!("{:?}\n", i.1);
     }
+    println!("???");
+    for i in holdo.market_goods() {
+        let mut sum = 0.0;
+        println!("!! {}", i.0);
+        for j in i.1 {
+            sum += j.1[0];
+            println!("{}", j.0);
+            println!("{:?}\n", j.1);
+        }
+        // if sum > 2000.0 {
+        //     break;
+        // }
+        if i.0 == 5 {
+            break;
+        }
+    }
+    let gdp = holdo.national_gdp();
+    let gdp = gdp.get(&227);
+    println!("{:?}", gdp);
     // let relpop = holdo.population_religions();
     // for i in relpop.iter() {
     //     println!("{} {}", i.0, i.1);

@@ -16,6 +16,14 @@ mod needs;
 use needs::Needs;
 mod buy_package;
 use buy_package::BuyPackage;
+mod country;
+use country::Country;
+mod formable;
+use formable::Formable;
+mod law;
+use law::Law;
+mod law_group;
+use law_group::LawGroup;
 
 #[derive(Debug, Default)]
 pub struct Game {
@@ -26,9 +34,13 @@ pub struct Game {
     strategic_regions: Vec<StrategicRegion>,
     goods: Vec<Good>,
     needs: Vec<Needs>,
+    countries: HashMap<String, Country>,
+    formables: HashMap<String, Formable>,
     /// consumption of 300k working pops. Dependends count for 50%.
-    /// note: SOL of 1 is in index, 0, SOL 2 in 1, and so on. 
+    /// note: SOL of 1 is in index, 0, SOL 2 in 1, and so on.
     buy_packages: Vec<BuyPackage>,
+    laws: HashMap<String, Law>,
+    law_groups: HashMap<String, LawGroup>,
 }
 
 impl Game {
@@ -58,7 +70,12 @@ impl Game {
         ret.needs = Needs::new_group(&path.join("game").join("common").join("pop_needs"))?;
         ret.buy_packages =
             BuyPackage::new_group(&path.join("game").join("common").join("buy_packages"))?;
-
+        ret.countries =
+            Country::new_group(&path.join("game").join("common").join("country_definitions"))?;
+        ret.formables =
+            Formable::new_group(&path.join("game").join("common").join("country_formation"))?;
+        ret.laws = Law::new_group(&path.join("game").join("common").join("laws"))?;
+        ret.law_groups = LawGroup::new_group(&path.join("game").join("common").join("law_groups"))?;
 
         // let mut a = ZipArchive::new(stuff)?;
         // let mut info = Vec::new();
@@ -67,11 +84,11 @@ impl Game {
         for i in &mut ret.strategic_regions {
             i.set_range(&mut ret.state_regions, &mut iter);
         }
-        println!("{:?}", ret.goods);
+        // println!("{:?}", ret.goods);
         // let inp = TextTape::from_slice(&info)?;
         // let inp = inp.utf8_reader();
 
-        // todo!()
+        todo!();
         Ok(ret)
     }
 }
