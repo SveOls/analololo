@@ -52,7 +52,6 @@ impl LawGroup {
                 }
             }
         }
-        panic!();
 
         Ok(ret)
     }

@@ -21,12 +21,13 @@ fn tester() -> Result<(), Box<dyn Error>> {
     // let filename = "data/roman republic_1947_02_17.v3";
     // let filename = "data/prussia_1836_01_03.v3";
     let filename = "data/indian territory_1846_09_19.v3";
-    // let gameloc = PathBuf::from(r"/mnt/c/Program Files (x86)/Steam/steamapps/common/Victoria 3");
-    let gameloc = PathBuf::from(r"/mnt/c/Steam/steamapps/common/Victoria 3");
+    let gameloc = PathBuf::from(r"/mnt/c/Program Files (x86)/Steam/steamapps/common/Victoria 3");
+    // let gameloc = PathBuf::from(r"/mnt/c/Steam/steamapps/common/Victoria 3");
+
+    let gam = game::Game::new(&gameloc)?;
 
     let tits = save::Save::new(File::open(filename)?)?;
-    let gam = game::Game::new(&gameloc)?;
-    // panic!();
+        // panic!();
 
     let holdo = scanner::Holder::new(tits, gam);
 
