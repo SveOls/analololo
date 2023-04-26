@@ -24,6 +24,7 @@ mod law;
 use law::Law;
 mod law_group;
 use law_group::LawGroup;
+mod condition;
 
 #[derive(Debug, Default)]
 pub struct Game {

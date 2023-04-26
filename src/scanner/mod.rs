@@ -31,6 +31,7 @@ pub struct Holder {
     goods: StringId,
     buy_packages: StringId,
     needs: StringId,
+
 }
 
 impl Holder {
