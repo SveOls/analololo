@@ -34,7 +34,7 @@ impl LawGroup {
         Ok(ret)
     }
     pub fn new_group(inp: &Path) -> Result<HashMap<String, Self>, Box<dyn Error>> {
-        let mut ret = HashMap::new();
+        let mut ret = HashMap::new();eeeeeeeeeeee
 
         for entry in std::fs::read_dir(inp)? {
             if let Ok(a) = entry {

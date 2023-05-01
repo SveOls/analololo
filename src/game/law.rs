@@ -69,11 +69,6 @@ impl Law {
                     let temp = std::fs::read(a.path())?;
                     let c = TextTape::from_slice(&temp)?;
                     let d = c.utf8_reader();
-                    //
-                    for (key, _, value) in d.fields() {
-                        super::condition::Booli::test(value.read_object()?);
-                    }
-                    //
                     for (key, _, value) in d.fields() {
                         ret.insert(key.read_string(), Self::new(value.read_object()?)?);
                     }
