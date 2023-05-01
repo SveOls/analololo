@@ -31,7 +31,64 @@ pub struct Holder {
     goods: StringId,
     buy_packages: StringId,
     needs: StringId,
+    // 10_000 by default. Meaning: buy orders as defined by a pops SOL are scaled relative to 10_000.
+    factor: f64
+}
 
+impl Holder {
+    pub fn testing(&self) {
+        for i in self.state_goods().get(&1).unwrap() {
+            println!("{} {:?}", i.0, i.1);
+        }
+        println!("{}", self.save.states().database().get(&1).unwrap().as_ref().unwrap().region());
+    }
+    pub fn random_pop(&self) {
+        let mut pope = None;
+        for (id, pop) in self.save.pops().database().iter().filter_map(|(k, v)| v.as_ref().map(|x| (k, x))) {
+            if pop.size() > 4000 {
+                pope = Some((id, pop));
+                break;
+            }
+        }
+        let (id, pop) = if let Some(a) = pope {
+            a
+        } else {
+            return
+        };
+        println!("\nid: {id}");
+        println!("religion: {}", pop.religion());
+        println!("culture: {} ({})", self.save.cultures().database().get(&pop.culture()).unwrap().as_ref().unwrap().name(), pop.culture());
+        println!("job: {}", pop.job().unwrap());
+        println!("location: {} ({})", self.save.states().database().get(&pop.location()).unwrap().as_ref().unwrap().region(), pop.location());
+        println!("size: {}, {}, {}", pop.workforce(), pop.dependents(), pop.size());
+        println!("literacy: {:.2}% ({})", 100.0 * pop.literates() as f64 / pop.workforce() as f64, pop.literates());
+        println!("budget: {:?}", pop.budget());
+
+        let scales = self.save.states().database().get(&pop.location()).unwrap().as_ref().unwrap().pop_needs().get(&pop.culture()).unwrap();
+        let mut factor = (pop.workforce() as f64 + pop.dependents() as f64 / 2.0) / self.factor;
+        let buy_packages = self.game.buy_packages();
+        let goods = self.game.goods();
+        if Some("peasants") == pop.job().map(|x| x.as_str()) {
+            factor *= 0.1;
+        }
+        let mut hashma: HashMap<&str, f64> = HashMap::new();
+        for (need_name, amount) in buy_packages[pop.wealth() as usize - 1].goods().iter() {
+            let weights = scales.get(*self.needs.get_id(&need_name).unwrap()).unwrap();
+
+            // panic!("{} {} {:?} {:?}", a, need_name, amount, weights);
+            // let base_price = needs.iter().find(|x| x.name() == need_name).map(|y| goods.iter().find(|z| z.name() == y.default_good()).map(|o| o.price())).flatten().unwrap();
+            let tot_weight = weights.iter().map(|x| x.1).fold(0.0, |acc, x| acc + x);
+            for &(good, weight) in weights {
+                if tot_weight != 0.0 {
+                    *hashma.entry(goods[good].name()).or_default() += (weight / tot_weight) * factor * amount / goods[good].price();
+                    // println!("{} {}", goods[good].name(), (weight / tot_weight) * factor * amount / goods[good].price());
+                }
+            }
+        }
+        for i in hashma {
+            println!("{}: {:.4}", i.0, i.1)
+        }
+    }
 }
 
 impl Holder {
@@ -61,6 +118,7 @@ impl Holder {
             goods,
             buy_packages,
             needs,
+            factor: 10_000.0,
         }
     }
     pub fn population(&self, religion: Option<&str>, culture: Option<usize>) -> i64 {
@@ -192,83 +250,15 @@ impl Holder {
     }
     /// might not count slave needs properly.
     pub fn global_goods(&self) -> HashMap<&str, [f64; 2]> {
-        let mut ret = HashMap::new();
-        let goods = self.game.goods();
-        let needs = self.game.needs();
-        let buy_packages = self.game.buy_packages();
-        let pops = self.save.pops().database();
-        let states = self.save.states().database();
-        for i in self
-            .save
-            .buildings()
-            .database()
-            .iter()
-            .filter_map(|x| x.1.as_ref().map(|x| x.goods_test()))
-            .flatten()
-        {
-            (*ret.entry(goods[i.0].name()).or_insert([0.0, 0.0]))[0] += i.1;
-            (*ret.entry(goods[i.0].name()).or_insert([0.0, 0.0]))[1] += i.2;
-        }
-        // for (a, pop) in pops.iter().filter_map(|x| x.1.as_ref().map(|y| (x.0, y))) {
-        //     let scales = states.get(&pop.location()).map(|x| x.as_ref().map(|y| y.pop_needs().get(&pop.culture()))).flatten().flatten().unwrap();
-        //     let factor = (pop.workforce() as f64 + pop.dependents() as f64 / 2.0) / 300_000.0;
-        //     for (need_name, amount) in buy_packages[pop.wealth() as usize - 1].goods().iter() {
-        //         let weights = needs.iter().position(|x| x.name() == need_name).map(|y| &scales[y]).unwrap();
-        //         // panic!("{} {} {:?} {:?}", a, need_name, amount, weights);
-        //         let base_price = needs.iter().find(|x| x.name() == need_name).map(|y| goods.iter().find(|z| z.name() == y.default_good()).map(|o| o.price())).flatten().unwrap();
-        //         let tot_weight = weights.iter().map(|x| x.1).fold(0.0, |acc, x| acc + x);
-        //         for (good, weight) in weights {
-        //             // if *a == 6616 {
-        //             //     println!("{}", good);
-        //             //     println!("{}", weight);
-        //             //     println!("{}", tot_weight);
-        //             //     println!("{}", base_price);
-        //             //     println!("{}", factor);
-        //             //     println!("{}", amount);
-        //             //     println!("{}\n", (weight / tot_weight) * (base_price / goods[*good].price()) * factor * amount);
-        //             // }
-        //             (*ret.entry(goods[*good].name()).or_insert([0.0, 0.0]))[0] += (weight / tot_weight) * (base_price / goods[*good].price()) * factor * amount;
-        //         }
-        //     }
-        //     // if *a == 6616 {panic!()}
-        // }
 
-        for pop in pops.values().filter_map(|x| x.as_ref()) {
-            // for (a, pop) in pops.iter().filter_map(|x| x.1.as_ref().map(|y| (x.0, y))) {
-            // println!("{}", a);
-            // println!("{}", pop.location());
-            // println!("{}", pop.culture());
-            // println!("{:?}", states.get(&pop.location()).unwrap().as_ref().unwrap().pop_needs().keys().collect::<Vec<_>>());
-            let scales = if let Some(a) = states
-                .get(&pop.location())
-                .map(|x| x.as_ref().map(|y| y.pop_needs().get(&pop.culture())))
-                .flatten()
-                .flatten()
-            {
-                a
-            } else {
-                continue;
-            };
-            let mut factor = (pop.workforce() as f64 + pop.dependents() as f64 / 2.0) / 10_000.0;
-            if Some("peasants") == pop.job().map(|x| x.as_str()) {
-                factor *= 0.1;
-            }
-            for (need_name, amount) in buy_packages[pop.wealth() as usize - 1].goods().iter() {
-                let weights = scales.get(*self.needs.get_id(&need_name).unwrap()).unwrap();
+        let mut ret: HashMap<&str, [f64; 2]> = HashMap::new();
 
-                // panic!("{} {} {:?} {:?}", a, need_name, amount, weights);
-                // let base_price = needs.iter().find(|x| x.name() == need_name).map(|y| goods.iter().find(|z| z.name() == y.default_good()).map(|o| o.price())).flatten().unwrap();
-                let tot_weight = weights.iter().map(|x| x.1).fold(0.0, |acc, x| acc + x);
-                for &(good, weight) in weights {
-                    if tot_weight != 0.0 {
-                        (*ret.entry(goods[good].name()).or_insert([0.0, 0.0]))[0] +=
-                            (weight / tot_weight) * factor * amount / goods[good].price();
-                    }
-                }
+        for (_, mut val) in self.state_goods().drain() {
+            for (good, amount) in val.drain() {
+                (*ret.entry(good).or_default())[0] += amount[0];
+                (*ret.entry(good).or_default())[1] += amount[1];
             }
-            // if *a == 11474 {panic!()}
         }
-        // panic!();
 
         ret
     }
@@ -277,8 +267,34 @@ impl Holder {
     /// does not account for market access - assumes 100%.
     pub fn market_goods(&self) -> HashMap<usize, HashMap<&str, [f64; 2]>> {
         let mut ret = HashMap::new();
+        let states = self.save.states().database();
+        for (k, v) in self.state_goods() {
+            let a: &mut HashMap<&str, [f64; 2]> = ret.entry(states.get(&k).map(|x| x.as_ref()).flatten().unwrap().market()).or_default();
+            for (ik, iv) in v {
+                (*a.entry(ik).or_default())[0] += iv[0];
+                (*a.entry(ik).or_default())[1] += iv[1];
+            } 
+        }
+        ret
+    }
+    /// does not include trade routes
+    /// might not count slave needs properly.
+    /// does not account for market access - assumes 100%.
+    pub fn market_goods_access(&self) -> HashMap<usize, HashMap<&str, [f64; 2]>> {
+        let mut ret = HashMap::new();
+        let states = self.save.states().database();
+        for (k, v) in self.state_goods() {
+            let a: &mut HashMap<&str, [f64; 2]> = ret.entry(states.get(&k).map(|x| x.as_ref()).flatten().unwrap().market()).or_default();
+            for (ik, iv) in v {
+                (*a.entry(ik).or_default())[0] += iv[0] * states.get(&k).map(|x| x.as_ref()).flatten().unwrap().access();
+                (*a.entry(ik).or_default())[1] += iv[1] * states.get(&k).map(|x| x.as_ref()).flatten().unwrap().access();
+            } 
+        }
+        ret
+    }
+    pub fn state_goods(&self) -> HashMap<usize, HashMap<&str, [f64; 2]>> {
+        let mut ret = HashMap::new();
         let goods = self.game.goods();
-        let needs = self.game.needs();
         let buy_packages = self.game.buy_packages();
         let pops = self.save.pops().database();
         let states = self.save.states().database();
@@ -294,13 +310,12 @@ impl Holder {
                     break;
                 }
                 // initialize
-                ret.entry(states.get(&i.0).unwrap().as_ref().unwrap().market())
-                    .or_default();
-                ret.entry(states.get(&i.0).unwrap().as_ref().unwrap().market())
+                ret.entry(i.0).or_default();
+                ret.entry(i.0)
                     .and_modify(|x: &mut HashMap<&str, [f64; 2]>| {
                         x.entry(goods[j.0].name()).or_insert([0.0, 0.0])[0] += j.1
                     });
-                ret.entry(states.get(&i.0).unwrap().as_ref().unwrap().market())
+                ret.entry(i.0)
                     .and_modify(|x: &mut HashMap<&str, [f64; 2]>| {
                         x.entry(goods[j.0].name()).or_insert([0.0, 0.0])[1] += j.2
                     });
@@ -320,7 +335,7 @@ impl Holder {
             } else {
                 continue;
             };
-            let mut factor = (pop.workforce() as f64 + pop.dependents() as f64 / 2.0) / 10_000.0;
+            let mut factor = (pop.workforce() as f64 + pop.dependents() as f64 / 2.0) / self.factor;
             if Some("peasants") == pop.job().map(|x| x.as_str()) {
                 factor *= 0.1;
             }
@@ -330,14 +345,7 @@ impl Holder {
                 // let tot_weight = 5.0;
                 for (good, weight) in weights {
                     let entr = ret
-                        .entry(
-                            states
-                                .get(&pop.location())
-                                .unwrap()
-                                .as_ref()
-                                .unwrap()
-                                .market(),
-                        )
+                        .entry(pop.location())
                         .or_default();
 
                     (*entr.entry(goods[*good].name()).or_insert([0.0, 0.0]))[0] +=

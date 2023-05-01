@@ -89,7 +89,6 @@ impl Game {
         // let inp = TextTape::from_slice(&info)?;
         // let inp = inp.utf8_reader();
 
-        todo!();
         Ok(ret)
     }
 }

@@ -7,7 +7,7 @@ pub struct State {
     incorporation: Option<i64>,
     market: usize,
     infrastructure: i64,
-    infrastructure_usage: Option<i64>,
+    infrastructure_usage: i64,
     provinces: Vec<usize>,
     region: String,
     last_owner_change: Option<String>,
@@ -30,6 +30,16 @@ impl State {
     pub fn country(&self) -> usize {
         self.country
     }
+    pub fn region(&self) -> &String {
+        &self.region
+    }
+    pub fn access(&self) -> f64 {
+        if self.infrastructure > self.infrastructure_usage {
+            1.0
+        } else {
+            self.infrastructure as f64 / self.infrastructure_usage as f64
+        }
+    }
     pub fn pop_needs(&self) -> &HashMap<usize, Vec<Vec<(usize, f64)>>> {
         &self.pop_needs
     }
@@ -38,7 +48,7 @@ impl State {
         let mut incorporation = None;
         let mut market = None;
         let mut infrastructure = None;
-        let mut infrastructure_usage = None;
+        let mut infrastructure_usage = 0;
         let mut last_owner_change = None;
         let mut previous_owner = None;
         let mut treaty_port = false;
@@ -65,7 +75,7 @@ impl State {
                     infrastructure = Some((value.read_scalar()?.to_f64()? * 10e4) as i64)
                 }
                 "infrastructure_usage" => {
-                    infrastructure_usage = Some((value.read_scalar()?.to_f64()? * 10e4) as i64)
+                    infrastructure_usage = (value.read_scalar()?.to_f64()? * 10e4) as i64
                 }
                 "pop_needs" => {
                     for (culture, _, inner_value) in value.read_object()?.fields() {

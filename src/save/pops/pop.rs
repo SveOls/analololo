@@ -14,14 +14,20 @@ pub struct Pop {
     wealth: i64,
     culture: usize,
     location: usize,
-    // { wages subsistence dependents ? dividends ? needs ? income percap/land/poll ? consumption }
-    // missing: dividends tax, interest income,
+    // { wages subsistence dependents welfare dividends interest needs investment_losses income percap/land/poll ? consumption }
+    // dividends tax ?
     weekly_budget: Vec<i64>,
 }
 
 impl Pop {
     pub fn job(&self) -> Option<&String> {
         self.job.as_ref()
+    }
+    pub fn literates(&self) -> i64 {
+        self.literate
+    }
+    pub fn budget(&self) -> &Vec<i64> {
+        &self.weekly_budget
     }
     pub fn size(&self) -> i64 {
         self.workforce() + self.dependents()
