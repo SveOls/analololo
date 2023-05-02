@@ -45,7 +45,7 @@ impl Holder {
     pub fn random_pop(&self) {
         let mut pope = None;
         for (id, pop) in self.save.pops().database().iter().filter_map(|(k, v)| v.as_ref().map(|x| (k, x))) {
-            if pop.size() > 4000 {
+            if *id == 14092 {
                 pope = Some((id, pop));
                 break;
             }
@@ -262,6 +262,35 @@ impl Holder {
 
         ret
     }
+    /// includes market access and trade routes. Basically the numbers from the market overview screen.
+    /// some pop needs (probably slaves) needs are still scuffed
+    pub fn market_goods_full(&self) -> HashMap<usize, HashMap<&str, [f64; 2]>> {
+        let mut ret = self.market_goods_access();
+        for t in self.save.trade_routes().database().values().filter_map(|x| x.as_ref()) {
+            ret.entry(t.source()).or_default();
+            ret.entry(t.target()).or_default();
+            if t.traded() > 0.0 {
+                ret.entry(t.source())
+                    .and_modify(|x: &mut HashMap<&str, [f64; 2]>| {
+                        x.entry(&t.goods()).or_insert([0.0, 0.0])[1] += t.traded()
+                    });
+                ret.entry(t.target())
+                    .and_modify(|x: &mut HashMap<&str, [f64; 2]>| {
+                        x.entry(&t.goods()).or_insert([0.0, 0.0])[0] += t.traded()
+                    });
+            } else {
+                ret.entry(t.source())
+                    .and_modify(|x: &mut HashMap<&str, [f64; 2]>| {
+                        x.entry(&t.goods()).or_insert([0.0, 0.0])[0] -= t.traded()
+                    });
+                ret.entry(t.target())
+                    .and_modify(|x: &mut HashMap<&str, [f64; 2]>| {
+                        x.entry(&t.goods()).or_insert([0.0, 0.0])[1] -= t.traded()
+                    });
+            }
+        }
+        ret
+    }
     /// does not include trade routes
     /// might not count slave needs properly.
     /// does not account for market access - assumes 100%.
@@ -273,13 +302,12 @@ impl Holder {
             for (ik, iv) in v {
                 (*a.entry(ik).or_default())[0] += iv[0];
                 (*a.entry(ik).or_default())[1] += iv[1];
-            } 
+            }
         }
         ret
     }
     /// does not include trade routes
     /// might not count slave needs properly.
-    /// does not account for market access - assumes 100%.
     pub fn market_goods_access(&self) -> HashMap<usize, HashMap<&str, [f64; 2]>> {
         let mut ret = HashMap::new();
         let states = self.save.states().database();
@@ -288,7 +316,7 @@ impl Holder {
             for (ik, iv) in v {
                 (*a.entry(ik).or_default())[0] += iv[0] * states.get(&k).map(|x| x.as_ref()).flatten().unwrap().access();
                 (*a.entry(ik).or_default())[1] += iv[1] * states.get(&k).map(|x| x.as_ref()).flatten().unwrap().access();
-            } 
+            }
         }
         ret
     }
@@ -373,6 +401,13 @@ impl Holder {
             .filter_map(|(k, v)| v.as_ref().map(|x| (*k, x.market())))
         {
             *ret.entry(market).or_default() += buildings.get(&state).unwrap() * 52.0;
+        }
+        ret
+    }
+    pub fn country_law_history(&self) -> HashMap<usize, Vec<(String, String, Option<String>)>> {
+        let mut ret = HashMap::new();
+        for law in self.save.laws().database().values().filter_map(|x| x.as_ref()) {
+            ret.entry(law.country()).and_modify(|x: &mut Vec<(String, String, Option<String>)>| x.push((law.law().to_owned(), law.activation().to_owned(), law.replace().to_owned()))).or_insert(vec![(law.law().to_owned(), law.activation().to_owned(), law.replace().to_owned())]);
         }
         ret
     }

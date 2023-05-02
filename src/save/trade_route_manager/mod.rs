@@ -11,6 +11,9 @@ pub struct TradeRouteManager {
 }
 
 impl TradeRouteManager {
+    pub fn database(&self) -> &HashMap<usize, Option<TradeRoute>> {
+        &self.database
+    }
     pub fn new(inp: ObjectReader<Utf8Encoding>) -> Result<Self, Box<dyn Error>> {
         let mut database = None;
 

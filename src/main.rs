@@ -22,9 +22,12 @@ fn tester() -> Result<(), Box<dyn Error>> {
     // let filename = "data/prussia_1836_01_03.v3";
     let filename = "data/indian territory_1846_09_19.v3";
     let gameloc = PathBuf::from(r"/mnt/c/Program Files (x86)/Steam/steamapps/common/Victoria 3");
-    // let gameloc = PathBuf::from(r"/mnt/c/Steam/steamapps/common/Victoria 3");
+    let gameloc2 = PathBuf::from(r"/mnt/c/Steam/steamapps/common/Victoria 3");
 
-    let gam = game::Game::new(&gameloc)?;
+    let gam = match (game::Game::new(&gameloc), game::Game::new(&gameloc2)) {
+        (Ok(a), _) | (_, Ok(a)) => Ok(a),
+        (Err(e), Err(_)) => Err(e),
+    }?;
 
     let tits = save::Save::new(File::open(filename)?)?;
         // panic!();
@@ -49,7 +52,7 @@ fn tester() -> Result<(), Box<dyn Error>> {
         println!("{:?}\n", i.1);
     }
     println!("???");
-    for i in holdo.market_goods_access() {
+    for i in holdo.market_goods_full() {
         let mut sum = 0.0;
         println!("!! {}", i.0);
         for j in i.1 {
@@ -94,7 +97,16 @@ fn tester() -> Result<(), Box<dyn Error>> {
     // for i in solcul.iter() {
     //     println!("{:18}: {:.2}", i.1 .0, i.1 .1);
     // }
-    // holdo.random_pop();
+    holdo.random_pop();
+    for (i, j) in holdo.country_law_history() {
+        println!("{i}");
+        for k in j.into_iter() {
+            println!("\t{k:?}")
+        }
+        if i == 227 {
+            break;
+        }
+    }
     // for i in holdo.state_goods() {
     //     println!("{}", i.0);
     //     println!("{:?}", i.1);
@@ -104,10 +116,3 @@ fn tester() -> Result<(), Box<dyn Error>> {
     // }
     Ok(())
 }
-// 1046153240
-// 34918
-// 535394243.93779916
-
-// 2753172682
-// 665177
-// 11437585696.624992

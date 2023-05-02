@@ -171,6 +171,12 @@ impl Save {
     pub fn states(&self) -> &States {
         &self.states
     }
+    pub fn laws(&self) -> &Laws {
+        &self.laws
+    }
+    pub fn trade_routes(&self) -> &TradeRouteManager {
+        &self.trade_route_manager
+    }
     pub fn pops(&self) -> &Pops {
         &self.pops
     }

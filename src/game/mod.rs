@@ -45,6 +45,12 @@ pub struct Game {
 }
 
 impl Game {
+    pub fn laws(&self) -> &HashMap<String, Law> {
+        &self.laws
+    }
+    pub fn law_groups(&self) -> &HashMap<String, LawGroup> {
+        &self.law_groups
+    }
     pub fn goods(&self) -> &Vec<Good> {
         &self.goods
     }

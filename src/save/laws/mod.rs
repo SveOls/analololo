@@ -11,6 +11,9 @@ pub struct Laws {
 }
 
 impl Laws {
+    pub fn database(&self) -> &HashMap<usize, Option<Law>> {
+        &self.database
+    }
     pub fn new(inp: ObjectReader<Utf8Encoding>) -> Result<Self, Box<dyn Error>> {
         let mut database = None;
 
