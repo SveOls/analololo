@@ -5,7 +5,7 @@
 use std::{
     error::Error,
     fs::File,
-    path::{Path, PathBuf},
+    path::{PathBuf},
 };
 
 pub mod game;

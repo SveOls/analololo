@@ -30,7 +30,7 @@ impl Election {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Election::new(x))
+                    .map(Election::new)
                     .transpose()?,
             );
         }

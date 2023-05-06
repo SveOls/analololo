@@ -1,11 +1,11 @@
 use std::{
     collections::HashMap,
     error::Error,
-    path::{Path, PathBuf},
+    path::{Path},
 };
 
 use walkdir;
-use jomini::{text::ObjectReader, TextTape, Utf8Encoding};
+
 
 #[derive(Debug, Default)]
 pub struct Localization {
@@ -32,7 +32,7 @@ impl Localization {
                     .unwrap_or(false)
                 {
                     let temp = std::fs::read_to_string(a.path())?;
-                    for (key, val) in temp.lines().filter_map(|x| x.trim().split_once(' ')).filter(|x| x.0.chars().next() != Some('#')) {
+                    for (key, val) in temp.lines().filter_map(|x| x.trim().split_once(' ')).filter(|x| !x.0.starts_with('#')) {
                         ret.insert(key.split(':').next().unwrap().to_owned(), Self::new(val)?);
                     }
                 }

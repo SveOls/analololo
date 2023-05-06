@@ -1,4 +1,4 @@
-use core::panic;
+
 
 use super::*;
 
@@ -66,7 +66,7 @@ impl TradeRoute {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| TradeRoute::new(x))
+                    .map(TradeRoute::new)
                     .transpose()?,
             );
         }

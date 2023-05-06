@@ -16,7 +16,7 @@ impl Building {
             self.input_goods.iter().map(|x| (x.0, x.1, 0.0)).collect();
         for i in &self.output_goods {
             if let Some(a) = ret.iter_mut().find(|x| x.0 == i.0) {
-                (*a).2 = i.1
+                a.2 = i.1
             } else {
                 ret.push((i.0, 0.0, i.1))
             }
@@ -125,7 +125,7 @@ impl Building {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Building::new(x))
+                    .map(Building::new)
                     .transpose()?,
             );
         }

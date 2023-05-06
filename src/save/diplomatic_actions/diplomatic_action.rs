@@ -29,7 +29,7 @@ impl DiplomaticAction {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| DiplomaticAction::new(x))
+                    .map(DiplomaticAction::new)
                     .transpose()?,
             );
         }

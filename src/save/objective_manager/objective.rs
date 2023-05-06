@@ -27,7 +27,7 @@ impl Objective {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Objective::new(x))
+                    .map(Objective::new)
                     .transpose()?,
             );
         }

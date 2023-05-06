@@ -86,7 +86,7 @@ impl Country {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Country::new(x))
+                    .map(Country::new)
                     .transpose()?,
             );
         }

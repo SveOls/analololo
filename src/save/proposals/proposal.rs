@@ -26,7 +26,7 @@ impl Proposal {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Proposal::new(x))
+                    .map(Proposal::new)
                     .transpose()?,
             );
         }

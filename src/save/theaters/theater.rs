@@ -25,7 +25,7 @@ impl Theater {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Theater::new(x))
+                    .map(Theater::new)
                     .transpose()?,
             );
         }

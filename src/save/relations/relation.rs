@@ -29,7 +29,7 @@ impl Relation {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Relation::new(x))
+                    .map(Relation::new)
                     .transpose()?,
             );
         }

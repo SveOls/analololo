@@ -30,7 +30,7 @@ impl CivilWarOne {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| CivilWarOne::new(x))
+                    .map(CivilWarOne::new)
                     .transpose()?,
             );
         }

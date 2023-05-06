@@ -28,7 +28,7 @@ impl Interest {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Interest::new(x))
+                    .map(Interest::new)
                     .transpose()?,
             );
         }

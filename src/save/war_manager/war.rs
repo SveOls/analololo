@@ -29,7 +29,7 @@ impl War {
         for (key, _, value) in inp.fields() {
             ret.insert(
                 key.read_str().parse()?,
-                value.read_object().ok().map(|x| War::new(x)).transpose()?,
+                value.read_object().ok().map(War::new).transpose()?,
             );
         }
         Ok(ret)

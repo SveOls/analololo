@@ -64,7 +64,7 @@ impl Law {
         for (key, _, value) in inp.fields() {
             ret.insert(
                 key.read_str().parse()?,
-                value.read_object().ok().map(|x| Law::new(x)).transpose()?,
+                value.read_object().ok().map(Law::new).transpose()?,
             );
         }
         Ok(ret)

@@ -29,7 +29,7 @@ impl StateRegion {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| StateRegion::new(x))
+                    .map(StateRegion::new)
                     .transpose()?,
             );
         }

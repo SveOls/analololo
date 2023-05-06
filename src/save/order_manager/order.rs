@@ -27,7 +27,7 @@ impl Order {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Order::new(x))
+                    .map(Order::new)
                     .transpose()?,
             );
         }

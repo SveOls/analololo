@@ -126,7 +126,7 @@ impl Holder {
         }
         let mut hashma: HashMap<&str, f64> = HashMap::new();
         for (need_name, amount) in buy_packages[pop.wealth() as usize - 1].goods().iter() {
-            let weights = scales.get(*self.needs.get_id(&need_name).unwrap()).unwrap();
+            let weights = scales.get(*self.needs.get_id(need_name).unwrap()).unwrap();
 
             // panic!("{} {} {:?} {:?}", a, need_name, amount, weights);
             // let base_price = needs.iter().find(|x| x.name() == need_name).map(|y| goods.iter().find(|z| z.name() == y.default_good()).map(|o| o.price())).flatten().unwrap();
@@ -331,20 +331,20 @@ impl Holder {
             if t.traded() > 0.0 {
                 ret.entry(t.source())
                     .and_modify(|x: &mut HashMap<&str, [f64; 2]>| {
-                        x.entry(&t.goods()).or_insert([0.0, 0.0])[1] += t.traded()
+                        x.entry(t.goods()).or_insert([0.0, 0.0])[1] += t.traded()
                     });
                 ret.entry(t.target())
                     .and_modify(|x: &mut HashMap<&str, [f64; 2]>| {
-                        x.entry(&t.goods()).or_insert([0.0, 0.0])[0] += t.traded()
+                        x.entry(t.goods()).or_insert([0.0, 0.0])[0] += t.traded()
                     });
             } else {
                 ret.entry(t.source())
                     .and_modify(|x: &mut HashMap<&str, [f64; 2]>| {
-                        x.entry(&t.goods()).or_insert([0.0, 0.0])[0] -= t.traded()
+                        x.entry(t.goods()).or_insert([0.0, 0.0])[0] -= t.traded()
                     });
                 ret.entry(t.target())
                     .and_modify(|x: &mut HashMap<&str, [f64; 2]>| {
-                        x.entry(&t.goods()).or_insert([0.0, 0.0])[1] -= t.traded()
+                        x.entry(t.goods()).or_insert([0.0, 0.0])[1] -= t.traded()
                     });
             }
         }
@@ -361,8 +361,7 @@ impl Holder {
                 .entry(
                     states
                         .get(&k)
-                        .map(|x| x.as_ref())
-                        .flatten()
+                        .and_then(|x| x.as_ref())
                         .unwrap()
                         .market(),
                 )
@@ -384,8 +383,7 @@ impl Holder {
                 .entry(
                     states
                         .get(&k)
-                        .map(|x| x.as_ref())
-                        .flatten()
+                        .and_then(|x| x.as_ref())
                         .unwrap()
                         .market(),
                 )
@@ -394,15 +392,13 @@ impl Holder {
                 (*a.entry(ik).or_default())[0] += iv[0]
                     * states
                         .get(&k)
-                        .map(|x| x.as_ref())
-                        .flatten()
+                        .and_then(|x| x.as_ref())
                         .unwrap()
                         .access();
                 (*a.entry(ik).or_default())[1] += iv[1]
                     * states
                         .get(&k)
-                        .map(|x| x.as_ref())
-                        .flatten()
+                        .and_then(|x| x.as_ref())
                         .unwrap()
                         .access();
             }
@@ -444,8 +440,7 @@ impl Holder {
             }
             let scales = if let Some(a) = states
                 .get(&pop.location())
-                .map(|x| x.as_ref().map(|y| y.pop_needs().get(&pop.culture())))
-                .flatten()
+                .and_then(|x| x.as_ref().map(|y| y.pop_needs().get(&pop.culture())))
                 .flatten()
             {
                 a
@@ -457,7 +452,7 @@ impl Holder {
                 factor *= 0.1;
             }
             for (need_name, amount) in buy_packages[pop.wealth() as usize - 1].goods().iter() {
-                let weights = scales.get(*self.needs.get_id(&need_name).unwrap()).unwrap();
+                let weights = scales.get(*self.needs.get_id(need_name).unwrap()).unwrap();
                 let tot_weight = weights.iter().map(|x| x.1).fold(0.0, |acc, x| acc + x);
                 // let tot_weight = 5.0;
                 for (good, weight) in weights {

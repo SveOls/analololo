@@ -46,7 +46,7 @@ impl Character {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Character::new(x))
+                    .map(Character::new)
                     .transpose()?,
             );
         }

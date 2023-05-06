@@ -26,7 +26,7 @@ impl Hq {
         for (key, _, value) in inp.fields() {
             ret.insert(
                 key.read_str().parse()?,
-                value.read_object().ok().map(|x| Hq::new(x)).transpose()?,
+                value.read_object().ok().map(Hq::new).transpose()?,
             );
         }
         Ok(ret)

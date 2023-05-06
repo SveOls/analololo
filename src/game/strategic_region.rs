@@ -1,4 +1,4 @@
-use std::{collections::HashMap, error::Error, path::Path};
+use std::{error::Error, path::Path};
 
 use jomini::{text::ObjectReader, TextTape, Utf8Encoding};
 

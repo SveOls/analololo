@@ -28,7 +28,7 @@ impl Institution {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Institution::new(x))
+                    .map(Institution::new)
                     .transpose()?,
             );
         }

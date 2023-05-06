@@ -30,7 +30,7 @@ impl ShippingLane {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| ShippingLane::new(x))
+                    .map(ShippingLane::new)
                     .transpose()?,
             );
         }

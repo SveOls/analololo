@@ -29,7 +29,7 @@ impl Techs {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Techs::new(x))
+                    .map(Techs::new)
                     .transpose()?,
             );
         }

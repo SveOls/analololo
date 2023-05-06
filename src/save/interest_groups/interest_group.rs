@@ -45,7 +45,7 @@ impl InterestGroup {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| InterestGroup::new(x))
+                    .map(InterestGroup::new)
                     .transpose()?,
             );
         }

@@ -34,7 +34,7 @@ impl JournalEntry {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| JournalEntry::new(x))
+                    .map(JournalEntry::new)
                     .transpose()?,
             );
         }

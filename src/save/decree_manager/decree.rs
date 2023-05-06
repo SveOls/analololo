@@ -26,7 +26,7 @@ impl Decree {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Decree::new(x))
+                    .map(Decree::new)
                     .transpose()?,
             );
         }

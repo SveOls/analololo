@@ -52,7 +52,7 @@ impl Battle {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Battle::new(x))
+                    .map(Battle::new)
                     .transpose()?,
             );
         }

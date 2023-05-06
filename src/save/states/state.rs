@@ -177,7 +177,7 @@ impl State {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| State::new(x))
+                    .map(State::new)
                     .transpose()?,
             );
         }

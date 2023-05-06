@@ -44,7 +44,7 @@ impl DiplomaticPlay {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| DiplomaticPlay::new(x))
+                    .map(DiplomaticPlay::new)
                     .transpose()?,
             );
         }

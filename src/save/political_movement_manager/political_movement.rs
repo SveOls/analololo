@@ -28,7 +28,7 @@ impl PoliticalMovement {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| PoliticalMovement::new(x))
+                    .map(PoliticalMovement::new)
                     .transpose()?,
             );
         }

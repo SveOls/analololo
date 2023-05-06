@@ -35,7 +35,7 @@ impl CombatUnit {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| CombatUnit::new(x))
+                    .map(CombatUnit::new)
                     .transpose()?,
             );
         }

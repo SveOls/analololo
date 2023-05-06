@@ -23,7 +23,7 @@ impl Casualty {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Casualty::new(x))
+                    .map(Casualty::new)
                     .transpose()?,
             );
         }

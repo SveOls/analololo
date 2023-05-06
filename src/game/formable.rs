@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     error::Error,
-    path::{Path, PathBuf},
+    path::{Path},
 };
 
 use jomini::{text::ObjectReader, TextTape, Utf8Encoding};

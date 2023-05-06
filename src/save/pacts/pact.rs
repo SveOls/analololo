@@ -25,7 +25,7 @@ impl Pact {
         for (key, _, value) in inp.fields() {
             ret.insert(
                 key.read_str().parse()?,
-                value.read_object().ok().map(|x| Pact::new(x)).transpose()?,
+                value.read_object().ok().map(Pact::new).transpose()?,
             );
         }
         Ok(ret)

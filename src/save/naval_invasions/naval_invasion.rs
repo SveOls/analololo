@@ -29,7 +29,7 @@ impl NavalInvasion {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| NavalInvasion::new(x))
+                    .map(NavalInvasion::new)
                     .transpose()?,
             );
         }

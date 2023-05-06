@@ -26,7 +26,7 @@ impl Market {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Market::new(x))
+                    .map(Market::new)
                     .transpose()?,
             );
         }

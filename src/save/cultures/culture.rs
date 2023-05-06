@@ -54,7 +54,7 @@ impl Culture {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Culture::new(x))
+                    .map(Culture::new)
                     .transpose()?,
             );
         }

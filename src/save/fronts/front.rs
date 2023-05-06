@@ -27,7 +27,7 @@ impl Front {
                 value
                     .read_object()
                     .ok()
-                    .map(|x| Front::new(x))
+                    .map(Front::new)
                     .transpose()?,
             );
         }
