@@ -136,11 +136,13 @@ fn tester() -> Result<(), Box<dyn Error>> {
         // println!("{}", gamelaw.get(i.law().as_str()).unwrap().0);
         // println!("{}", gamelaw.get(i.law().as_str()).unwrap().1[0].name());
         // println!("{}", gamelaw.get(i.law().as_str()).unwrap().2[0].name());
-        println!("{:?}", local.get(gamelaw.get(i.law().as_str()).unwrap().0).unwrap().obtain());
-        println!("{:?}", local.get(gamelaw.get(i.law().as_str()).unwrap().1[0].name()).unwrap().obtain());
-        println!("{:?}", local.get(gamelaw.get(i.law().as_str()).unwrap().2[0].name()).unwrap().obtain());
+        println!("{}", local.get(gamelaw.get(i.law().as_str()).unwrap().0).unwrap().obtain());
+        println!("{}", local.get(gamelaw.get(i.law().as_str()).unwrap().1[0].name()).unwrap().obtain());
+        println!("{}", local.get(gamelaw.get(i.law().as_str()).unwrap().2[0].name()).unwrap().obtain());
         println!();
     }
+    println!("{}", holdo.country_law_history(true).get(&227).unwrap().iter().filter(|x| x.active()).count());
+    println!("{:?}", local.get("SEQ"));
     // for i in holdo.state_goods() {
     //     println!("{}", i.0);
     //     println!("{:?}", i.1);

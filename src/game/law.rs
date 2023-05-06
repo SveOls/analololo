@@ -87,7 +87,7 @@ impl Law {
                     for (key, _, value) in d.fields() {
                         ret.insert(key.read_string(), Self::new(value.read_object()?)?);
                         ret.entry(key.read_string())
-                            .and_modify(|x| x.name = key.read_string().to_string());
+                            .and_modify(|x| x.name = key.read_string());
                     }
                 }
             }

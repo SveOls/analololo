@@ -43,21 +43,20 @@ impl BuyPackage {
     pub fn new_group(inp: &Path) -> Result<Vec<Self>, Box<dyn Error>> {
         let mut ret = Vec::new();
 
-        for entry in std::fs::read_dir(inp)? {
-            if let Ok(a) = entry {
-                if a.path()
-                    .extension()
-                    .map(|x| x.to_str().unwrap() == "txt")
-                    .unwrap_or(false)
-                {
-                    let temp = std::fs::read(a.path())?;
-                    let c = TextTape::from_slice(&temp)?;
-                    let d = c.utf8_reader();
-                    for (key, _, value) in d.fields() {
-                        ret.push(Self::new(key.read_string(), value.read_object()?)?);
-                    }
+        for entry in std::fs::read_dir(inp)?.flatten() {
+            if entry.path()
+                .extension()
+                .map(|x| x.to_str().unwrap() == "txt")
+                .unwrap_or(false)
+            {
+                let temp = std::fs::read(entry.path())?;
+                let c = TextTape::from_slice(&temp)?;
+                let d = c.utf8_reader();
+                for (key, _, value) in d.fields() {
+                    ret.push(Self::new(key.read_string(), value.read_object()?)?);
                 }
             }
+
         }
         Ok(ret)
     }
