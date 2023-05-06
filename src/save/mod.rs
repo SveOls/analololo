@@ -27,7 +27,7 @@ mod interest_groups;
 mod interest_manager;
 mod ironman;
 mod journal_entry_manager;
-mod laws;
+pub mod laws;
 mod market_manager;
 mod metadata;
 mod naval_invasions;

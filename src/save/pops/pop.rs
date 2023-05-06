@@ -14,8 +14,7 @@ pub struct Pop {
     wealth: i64,
     culture: usize,
     location: usize,
-    // { wages subsistence dependents welfare dividends interest needs investment_losses income percap/land/poll ? consumption }
-    // dividends tax ?
+    // { wages subsistence dependents welfare dividends interest needs investment_losses income percap/land/poll dividends-tax consumption }
     weekly_budget: Vec<i64>,
 }
 
@@ -60,7 +59,7 @@ impl Pop {
         let mut dependents = 0;
         let mut growth_dependents = 0;
         let mut literate = 0;
-        let mut weekly_budget = None;
+        let mut weekly_budget: Option<Vec<i64>> = None;
         let mut culture = None;
         let mut religion = None;
 

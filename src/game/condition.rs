@@ -2,8 +2,6 @@ use std::error::Error;
 
 use jomini::{text::ObjectReader, Utf8Encoding};
 
-
-
 #[derive(Debug)]
 enum Condition {
     String(String),
@@ -36,13 +34,11 @@ impl Booli {
                 "NAND" => ret.push(Box::new(Self::Nand(Self::new(val.read_object()?)?))),
                 "OR" => ret.push(Box::new(Self::Or(Self::new(val.read_object()?)?))),
                 "NOT" => ret.push(Box::new(Self::Not(Self::new(val.read_object()?)?))),
-                a => {
-                    match (val.read_scalar().map(|z| z.to_bool()), val.read_string()) {
-                        (Ok(Ok(b)), _) => ret.push(Box::new(Self::ConditionBool((a.to_string(), b)))),
-                        (_, Ok(b)) => ret.push(Box::new(Self::Condition([a.to_owned(), b]))),
-                        _ => panic!("{}", a)
-                   }
-                }
+                a => match (val.read_scalar().map(|z| z.to_bool()), val.read_string()) {
+                    (Ok(Ok(b)), _) => ret.push(Box::new(Self::ConditionBool((a.to_string(), b)))),
+                    (_, Ok(b)) => ret.push(Box::new(Self::Condition([a.to_owned(), b]))),
+                    _ => panic!("{}", a),
+                },
             }
         }
         Ok(ret)

@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use super::*;
 
-mod law;
-use law::Law;
+pub mod law;
+pub use law::Law;
 
 #[allow(dead_code)]
 pub struct Laws {

@@ -16,7 +16,7 @@ pub struct TradeRoute {
     goods: String,
     traded: f64,
     revenue: f64,
-    start_date: String
+    start_date: String,
 }
 
 impl TradeRoute {
@@ -33,7 +33,7 @@ impl TradeRoute {
         if self.direction.as_str() == "import" {
             self.traded
         } else {
-            - self.traded
+            -self.traded
         }
     }
     pub fn new(inp: ObjectReader<Utf8Encoding>) -> Result<Self, Box<dyn Error>> {

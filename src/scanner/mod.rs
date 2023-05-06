@@ -32,7 +32,7 @@ pub struct Holder {
     buy_packages: StringId,
     needs: StringId,
     // 10_000 by default. Meaning: buy orders as defined by a pops SOL are scaled relative to 10_000.
-    factor: f64
+    factor: f64,
 }
 
 impl Holder {
@@ -40,31 +40,84 @@ impl Holder {
         for i in self.state_goods().get(&1).unwrap() {
             println!("{} {:?}", i.0, i.1);
         }
-        println!("{}", self.save.states().database().get(&1).unwrap().as_ref().unwrap().region());
+        println!(
+            "{}",
+            self.save
+                .states()
+                .database()
+                .get(&1)
+                .unwrap()
+                .as_ref()
+                .unwrap()
+                .region()
+        );
     }
     pub fn random_pop(&self) {
         let mut pope = None;
-        for (id, pop) in self.save.pops().database().iter().filter_map(|(k, v)| v.as_ref().map(|x| (k, x))) {
+        for (id, pop) in self
+            .save
+            .pops()
+            .database()
+            .iter()
+            .filter_map(|(k, v)| v.as_ref().map(|x| (k, x)))
+        {
             if *id == 14092 {
                 pope = Some((id, pop));
                 break;
             }
         }
-        let (id, pop) = if let Some(a) = pope {
-            a
-        } else {
-            return
-        };
+        let (id, pop) = if let Some(a) = pope { a } else { return };
         println!("\nid: {id}");
         println!("religion: {}", pop.religion());
-        println!("culture: {} ({})", self.save.cultures().database().get(&pop.culture()).unwrap().as_ref().unwrap().name(), pop.culture());
+        println!(
+            "culture: {} ({})",
+            self.save
+                .cultures()
+                .database()
+                .get(&pop.culture())
+                .unwrap()
+                .as_ref()
+                .unwrap()
+                .name(),
+            pop.culture()
+        );
         println!("job: {}", pop.job().unwrap());
-        println!("location: {} ({})", self.save.states().database().get(&pop.location()).unwrap().as_ref().unwrap().region(), pop.location());
-        println!("size: {}, {}, {}", pop.workforce(), pop.dependents(), pop.size());
-        println!("literacy: {:.2}% ({})", 100.0 * pop.literates() as f64 / pop.workforce() as f64, pop.literates());
+        println!(
+            "location: {} ({})",
+            self.save
+                .states()
+                .database()
+                .get(&pop.location())
+                .unwrap()
+                .as_ref()
+                .unwrap()
+                .region(),
+            pop.location()
+        );
+        println!(
+            "size: {}, {}, {}",
+            pop.workforce(),
+            pop.dependents(),
+            pop.size()
+        );
+        println!(
+            "literacy: {:.2}% ({})",
+            100.0 * pop.literates() as f64 / pop.workforce() as f64,
+            pop.literates()
+        );
         println!("budget: {:?}", pop.budget());
 
-        let scales = self.save.states().database().get(&pop.location()).unwrap().as_ref().unwrap().pop_needs().get(&pop.culture()).unwrap();
+        let scales = self
+            .save
+            .states()
+            .database()
+            .get(&pop.location())
+            .unwrap()
+            .as_ref()
+            .unwrap()
+            .pop_needs()
+            .get(&pop.culture())
+            .unwrap();
         let mut factor = (pop.workforce() as f64 + pop.dependents() as f64 / 2.0) / self.factor;
         let buy_packages = self.game.buy_packages();
         let goods = self.game.goods();
@@ -80,7 +133,8 @@ impl Holder {
             let tot_weight = weights.iter().map(|x| x.1).fold(0.0, |acc, x| acc + x);
             for &(good, weight) in weights {
                 if tot_weight != 0.0 {
-                    *hashma.entry(goods[good].name()).or_default() += (weight / tot_weight) * factor * amount / goods[good].price();
+                    *hashma.entry(goods[good].name()).or_default() +=
+                        (weight / tot_weight) * factor * amount / goods[good].price();
                     // println!("{} {}", goods[good].name(), (weight / tot_weight) * factor * amount / goods[good].price());
                 }
             }
@@ -250,7 +304,6 @@ impl Holder {
     }
     /// might not count slave needs properly.
     pub fn global_goods(&self) -> HashMap<&str, [f64; 2]> {
-
         let mut ret: HashMap<&str, [f64; 2]> = HashMap::new();
 
         for (_, mut val) in self.state_goods().drain() {
@@ -266,7 +319,13 @@ impl Holder {
     /// some pop needs (probably slaves) needs are still scuffed
     pub fn market_goods_full(&self) -> HashMap<usize, HashMap<&str, [f64; 2]>> {
         let mut ret = self.market_goods_access();
-        for t in self.save.trade_routes().database().values().filter_map(|x| x.as_ref()) {
+        for t in self
+            .save
+            .trade_routes()
+            .database()
+            .values()
+            .filter_map(|x| x.as_ref())
+        {
             ret.entry(t.source()).or_default();
             ret.entry(t.target()).or_default();
             if t.traded() > 0.0 {
@@ -298,7 +357,16 @@ impl Holder {
         let mut ret = HashMap::new();
         let states = self.save.states().database();
         for (k, v) in self.state_goods() {
-            let a: &mut HashMap<&str, [f64; 2]> = ret.entry(states.get(&k).map(|x| x.as_ref()).flatten().unwrap().market()).or_default();
+            let a: &mut HashMap<&str, [f64; 2]> = ret
+                .entry(
+                    states
+                        .get(&k)
+                        .map(|x| x.as_ref())
+                        .flatten()
+                        .unwrap()
+                        .market(),
+                )
+                .or_default();
             for (ik, iv) in v {
                 (*a.entry(ik).or_default())[0] += iv[0];
                 (*a.entry(ik).or_default())[1] += iv[1];
@@ -312,10 +380,31 @@ impl Holder {
         let mut ret = HashMap::new();
         let states = self.save.states().database();
         for (k, v) in self.state_goods() {
-            let a: &mut HashMap<&str, [f64; 2]> = ret.entry(states.get(&k).map(|x| x.as_ref()).flatten().unwrap().market()).or_default();
+            let a: &mut HashMap<&str, [f64; 2]> = ret
+                .entry(
+                    states
+                        .get(&k)
+                        .map(|x| x.as_ref())
+                        .flatten()
+                        .unwrap()
+                        .market(),
+                )
+                .or_default();
             for (ik, iv) in v {
-                (*a.entry(ik).or_default())[0] += iv[0] * states.get(&k).map(|x| x.as_ref()).flatten().unwrap().access();
-                (*a.entry(ik).or_default())[1] += iv[1] * states.get(&k).map(|x| x.as_ref()).flatten().unwrap().access();
+                (*a.entry(ik).or_default())[0] += iv[0]
+                    * states
+                        .get(&k)
+                        .map(|x| x.as_ref())
+                        .flatten()
+                        .unwrap()
+                        .access();
+                (*a.entry(ik).or_default())[1] += iv[1]
+                    * states
+                        .get(&k)
+                        .map(|x| x.as_ref())
+                        .flatten()
+                        .unwrap()
+                        .access();
             }
         }
         ret
@@ -372,9 +461,7 @@ impl Holder {
                 let tot_weight = weights.iter().map(|x| x.1).fold(0.0, |acc, x| acc + x);
                 // let tot_weight = 5.0;
                 for (good, weight) in weights {
-                    let entr = ret
-                        .entry(pop.location())
-                        .or_default();
+                    let entr = ret.entry(pop.location()).or_default();
 
                     (*entr.entry(goods[*good].name()).or_insert([0.0, 0.0]))[0] +=
                         (weight / tot_weight) * factor * amount / goods[*good].price();
@@ -404,11 +491,50 @@ impl Holder {
         }
         ret
     }
-    pub fn country_law_history(&self) -> HashMap<usize, Vec<(String, String, Option<String>)>> {
-        let mut ret = HashMap::new();
-        for law in self.save.laws().database().values().filter_map(|x| x.as_ref()) {
-            ret.entry(law.country()).and_modify(|x: &mut Vec<(String, String, Option<String>)>| x.push((law.law().to_owned(), law.activation().to_owned(), law.replace().to_owned()))).or_insert(vec![(law.law().to_owned(), law.activation().to_owned(), law.replace().to_owned())]);
-        }
-        ret
+    pub fn country_law_history(
+        &self,
+        filter_never_used: bool,
+    ) -> HashMap<usize, Vec<&save::laws::Law>> {
+        self.save
+            .laws()
+            .database()
+            .values()
+            .filter_map(|x| x.as_ref())
+            .filter(|x| !(x.zeroinfo() && filter_never_used))
+            .map(|law| (law.country(), law))
+            .fold(HashMap::new(), |mut acc, x| {
+                acc.entry(x.0).or_insert_with(Vec::new).push(x.1);
+                acc
+            })
+    }
+    /// for key = category, returns all groups and laws in the category.
+    /// for key = group, returns all laws in the group, as well as the category it belongs to.
+    /// for key = law, returns the category and group it belongs to.
+    pub fn law_context(&self) -> HashMap<&str, (&str, Vec<&game::LawGroup>, Vec<&game::Law>)> {
+        self.game
+            .laws()
+            .iter()
+            .map(|x| (x.0, x.1, self.game.law_groups().get(x.1.group()).unwrap()))
+            .fold(HashMap::new(), |mut acc, (k, v2, v1)| {
+                acc.entry(k.as_str())
+                    .or_insert_with(|| (v1.category().as_str(), vec![v1], vec![v2]));
+                acc.entry(v2.group())
+                    .or_insert_with(|| (v1.category().as_str(), vec![v1], Vec::new()))
+                    .2
+                    .push(v2);
+                acc.entry(v1.category())
+                    .or_insert_with(|| (v1.category().as_str(), Vec::new(), Vec::new()))
+                    .1
+                    .push(v1);
+                acc.entry(v1.category())
+                    .or_insert_with(|| (v1.category().as_str(), Vec::new(), Vec::new()))
+                    .2
+                    .push(v2);
+
+                acc
+            })
+    }
+    pub fn localization(&self) -> &HashMap<String, game::Localization> {
+        self.game.localization()
     }
 }

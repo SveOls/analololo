@@ -1,4 +1,6 @@
 #![feature(iterator_try_collect)]
+#![feature(is_some_and)]
+#![allow(clippy::match_single_binding, clippy::field_reassign_with_default)]
 
 use std::{
     error::Error,
@@ -6,9 +8,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-mod game;
-mod save;
-mod scanner;
+pub mod game;
+pub mod save;
+pub mod scanner;
 
 fn main() -> Result<(), Box<dyn Error>> {
     println!("Hello, world!");
@@ -30,7 +32,7 @@ fn tester() -> Result<(), Box<dyn Error>> {
     }?;
 
     let tits = save::Save::new(File::open(filename)?)?;
-        // panic!();
+    // panic!();
 
     let holdo = scanner::Holder::new(tits, gam);
 
@@ -98,14 +100,46 @@ fn tester() -> Result<(), Box<dyn Error>> {
     //     println!("{:18}: {:.2}", i.1 .0, i.1 .1);
     // }
     holdo.random_pop();
-    for (i, j) in holdo.country_law_history() {
+    let laws = holdo.country_law_history(true);
+    let gamelaw = holdo.law_context();
+    for (i, j) in laws {
         println!("{i}");
         for k in j.into_iter() {
             println!("\t{k:?}")
         }
         if i == 227 {
+            println!(
+                "{}",
+                holdo
+                    .country_law_history(true)
+                    .get(&227)
+                    .map_or(0, |x| x.len())
+            );
             break;
         }
+    }
+    for i in &gamelaw {
+        println!("\n\n{}", i.0);
+        println!("{}", i.1 .0);
+        println!();
+        for j in &i.1 .1 {
+            println!("\t\t{:?}", j);
+        }
+        println!();
+        for j in &i.1 .2 {
+            println!("\t\t{:?}", j);
+        }
+    }
+    let local = holdo.localization();
+    for &i in holdo.country_law_history(true).get(&227).unwrap().iter().filter(|x| x.active()) {
+        // println!("{}", i.law());
+        // println!("{}", gamelaw.get(i.law().as_str()).unwrap().0);
+        // println!("{}", gamelaw.get(i.law().as_str()).unwrap().1[0].name());
+        // println!("{}", gamelaw.get(i.law().as_str()).unwrap().2[0].name());
+        println!("{:?}", local.get(gamelaw.get(i.law().as_str()).unwrap().0).unwrap().obtain());
+        println!("{:?}", local.get(gamelaw.get(i.law().as_str()).unwrap().1[0].name()).unwrap().obtain());
+        println!("{:?}", local.get(gamelaw.get(i.law().as_str()).unwrap().2[0].name()).unwrap().obtain());
+        println!();
     }
     // for i in holdo.state_goods() {
     //     println!("{}", i.0);

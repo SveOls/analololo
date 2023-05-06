@@ -1,29 +1,32 @@
 use std::{collections::HashMap, error::Error, path::Path};
 
 mod production_method;
-use production_method::ProductionMethod;
+pub use production_method::ProductionMethod;
 mod pops;
-use pops::PopType;
+pub use pops::PopType;
 mod religion;
-use religion::Religion;
+pub use religion::Religion;
 mod state_regions;
-use state_regions::StateRegion;
+pub use state_regions::StateRegion;
 mod strategic_region;
-use strategic_region::StrategicRegion;
+pub use strategic_region::StrategicRegion;
 mod good;
-use good::Good;
+pub use good::Good;
 mod needs;
-use needs::Needs;
+pub use needs::Needs;
 mod buy_package;
-use buy_package::BuyPackage;
+pub use buy_package::BuyPackage;
 mod country;
-use country::Country;
+pub use country::Country;
 mod formable;
-use formable::Formable;
+pub use formable::Formable;
 mod law;
-use law::Law;
+pub use law::Law;
 mod law_group;
-use law_group::LawGroup;
+pub use law_group::LawGroup;
+mod localization;
+pub use localization::Localization;
+
 mod condition;
 
 #[derive(Debug, Default)]
@@ -42,11 +45,15 @@ pub struct Game {
     buy_packages: Vec<BuyPackage>,
     laws: HashMap<String, Law>,
     law_groups: HashMap<String, LawGroup>,
+    localization: HashMap<String, Localization>
 }
 
 impl Game {
     pub fn laws(&self) -> &HashMap<String, Law> {
         &self.laws
+    }
+    pub fn localization(&self) -> &HashMap<String, Localization> {
+        &self.localization
     }
     pub fn law_groups(&self) -> &HashMap<String, LawGroup> {
         &self.law_groups
@@ -83,6 +90,7 @@ impl Game {
             Formable::new_group(&path.join("game").join("common").join("country_formation"))?;
         ret.laws = Law::new_group(&path.join("game").join("common").join("laws"))?;
         ret.law_groups = LawGroup::new_group(&path.join("game").join("common").join("law_groups"))?;
+        ret.localization = Localization::new_group(&path.join("game").join("localization").join("english"))?;
 
         // let mut a = ZipArchive::new(stuff)?;
         // let mut info = Vec::new();

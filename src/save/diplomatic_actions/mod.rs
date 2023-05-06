@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use super::*;
 
-mod diplomatic_actions;
-use diplomatic_actions::DiplomaticAction;
+mod diplomatic_action;
+use diplomatic_action::DiplomaticAction;
 
 #[allow(dead_code)]
 pub struct DiplomaticActions {
