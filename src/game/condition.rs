@@ -7,14 +7,14 @@ enum Condition {
     String(String),
     Float(f64),
     Integer(i64),
-    Rec(Vec<Box<Self>>),
+    Rec(Vec<Self>),
 }
 
 #[derive(Debug)]
 pub enum Booli {
-    Nand(Vec<Box<Self>>),
-    Or(Vec<Box<Self>>),
-    Not(Vec<Box<Self>>),
+    Nand(Vec<Self>),
+    Or(Vec<Self>),
+    Not(Vec<Self>),
     Condition([String; 2]),
     ConditionBool((String, bool)),
 }
@@ -27,16 +27,16 @@ impl Booli {
     //             }
     //     }
     // }
-    pub fn new(inp: ObjectReader<Utf8Encoding>) -> Result<Vec<Box<Self>>, Box<dyn Error>> {
+    pub fn new(inp: ObjectReader<Utf8Encoding>) -> Result<Vec<Self>, Box<dyn Error>> {
         let mut ret = Vec::new();
         for (key, _, val) in inp.fields() {
             match key.read_str().as_ref() {
-                "NAND" => ret.push(Box::new(Self::Nand(Self::new(val.read_object()?)?))),
-                "OR" => ret.push(Box::new(Self::Or(Self::new(val.read_object()?)?))),
-                "NOT" => ret.push(Box::new(Self::Not(Self::new(val.read_object()?)?))),
+                "NAND" => ret.push(Self::Nand(Self::new(val.read_object()?)?)),
+                "OR" => ret.push(Self::Or(Self::new(val.read_object()?)?)),
+                "NOT" => ret.push(Self::Not(Self::new(val.read_object()?)?)),
                 a => match (val.read_scalar().map(|z| z.to_bool()), val.read_string()) {
-                    (Ok(Ok(b)), _) => ret.push(Box::new(Self::ConditionBool((a.to_string(), b)))),
-                    (_, Ok(b)) => ret.push(Box::new(Self::Condition([a.to_owned(), b]))),
+                    (Ok(Ok(b)), _) => ret.push(Self::ConditionBool((a.to_string(), b))),
+                    (_, Ok(b)) => ret.push(Self::Condition([a.to_owned(), b])),
                     _ => panic!("{}", a),
                 },
             }
