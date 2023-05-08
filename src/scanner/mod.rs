@@ -175,6 +175,9 @@ impl Holder {
             factor: 10_000.0,
         }
     }
+    // pub fn pops(&self) -> &HashMap<usize, Pop> {
+    //     self.save.pops().database()
+    // }
     pub fn population(&self, religion: Option<&str>, culture: Option<usize>) -> i64 {
         self.save
             .pops()
@@ -528,6 +531,9 @@ impl Holder {
 
                 acc
             })
+    }
+    pub fn jobs(&self) -> &HashMap<String, game::PopType> {
+        self.game.pops()
     }
     pub fn localization(&self) -> &HashMap<String, game::Localization> {
         self.game.localization()

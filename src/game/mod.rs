@@ -49,6 +49,9 @@ pub struct Game {
 }
 
 impl Game {
+    pub fn pops(&self) -> &HashMap<String, PopType> {
+        &self.pops
+    }
     pub fn laws(&self) -> &HashMap<String, Law> {
         &self.laws
     }
